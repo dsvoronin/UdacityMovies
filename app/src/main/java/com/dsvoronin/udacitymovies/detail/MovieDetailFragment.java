@@ -1,4 +1,4 @@
-package com.dsvoronin.udacitymovies;
+package com.dsvoronin.udacitymovies.detail;
 
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -7,12 +7,13 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
-import com.dsvoronin.udacitymovies.data.DummyDataSource;
+import com.dsvoronin.udacitymovies.grid.MoviesGridActivity;
+import com.dsvoronin.udacitymovies.R;
 import com.dsvoronin.udacitymovies.data.Movie;
 
 /**
  * A fragment representing a single Movie detail screen.
- * This fragment is either contained in a {@link MovieListActivity}
+ * This fragment is either contained in a {@link MoviesGridActivity}
  * in two-pane mode (on tablets) or a {@link MovieDetailActivity}
  * on handsets.
  */
@@ -43,7 +44,8 @@ public class MovieDetailFragment extends Fragment {
             // Load the dummy content specified by the fragment
             // arguments. In a real-world scenario, use a Loader
             // to load content from a content provider.
-            movie = DummyDataSource.dataMap.get(getArguments().getString(ARG_ITEM_ID));
+            String id = getArguments().getString(ARG_ITEM_ID);
+
         }
     }
 
@@ -54,7 +56,7 @@ public class MovieDetailFragment extends Fragment {
 
         // Show the dummy content as text in a TextView.
         if (movie != null) {
-            ((TextView) rootView.findViewById(R.id.movie_detail)).setText(movie.url);
+            ((TextView) rootView.findViewById(R.id.movie_detail)).setText(movie.posterPath);
         }
 
         return rootView;

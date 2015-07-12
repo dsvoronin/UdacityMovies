@@ -1,4 +1,4 @@
-package com.dsvoronin.udacitymovies;
+package com.dsvoronin.udacitymovies.core;
 
 /**
  * A callback interface that all activities containing this fragment must
@@ -9,7 +9,7 @@ public interface MasterCallbacks {
     /**
      * Callback for when an item has been selected.
      */
-    void onItemSelected(String id);
+    void onItemSelected(long id);
 
     /**
      * A dummy implementation of the {@link MasterCallbacks} interface that does
@@ -17,7 +17,7 @@ public interface MasterCallbacks {
      */
     MasterCallbacks DUMMY_CALLBACKS = new MasterCallbacks() {
         @Override
-        public void onItemSelected(String id) {
+        public void onItemSelected(long id) {
         }
     };
 }

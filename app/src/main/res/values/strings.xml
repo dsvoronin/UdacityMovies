@@ -1,4 +1,7 @@
 <resources>
     <string name="app_name">UdacityMovies</string>
     <string name="title_movie_detail">Movie Detail</string>
+
+    <string name="loading_error">Can\'t load movies</string>
+    <string name="loading_error_action">Retry</string>
 </resources>

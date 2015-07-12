@@ -1,8 +1,13 @@
-package com.dsvoronin.udacitymovies;
+package com.dsvoronin.udacitymovies.grid;
 
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
+
+import com.dsvoronin.udacitymovies.R;
+import com.dsvoronin.udacitymovies.core.MasterCallbacks;
+import com.dsvoronin.udacitymovies.detail.MovieDetailActivity;
+import com.dsvoronin.udacitymovies.detail.MovieDetailFragment;
 
 
 /**
@@ -21,8 +26,7 @@ import android.support.v4.app.FragmentActivity;
  * {@link MasterCallbacks} interface
  * to listen for item selections.
  */
-public class MovieListActivity extends FragmentActivity
-        implements MasterCallbacks {
+public class MoviesGridActivity extends FragmentActivity implements MasterCallbacks {
 
     /**
      * Whether or not the activity is in two-pane mode, i.e. running on a tablet
@@ -41,12 +45,6 @@ public class MovieListActivity extends FragmentActivity
             // res/values-sw600dp). If this view is present, then the
             // activity should be in two-pane mode.
             mTwoPane = true;
-
-            // In two-pane mode, list items should be given the
-            // 'activated' state when touched.
-            ((MoviesGridFragment) getSupportFragmentManager()
-                    .findFragmentById(R.id.movie_list))
-                    .setActivateOnItemClick(true);
         }
 
         // TODO: If exposing deep links into your app, handle intents here.
@@ -57,13 +55,13 @@ public class MovieListActivity extends FragmentActivity
      * indicating that the item with the given ID was selected.
      */
     @Override
-    public void onItemSelected(String id) {
+    public void onItemSelected(long id) {
         if (mTwoPane) {
             // In two-pane mode, show the detail view in this activity by
             // adding or replacing the detail fragment using a
             // fragment transaction.
             Bundle arguments = new Bundle();
-            arguments.putString(MovieDetailFragment.ARG_ITEM_ID, id);
+            arguments.putLong(MovieDetailFragment.ARG_ITEM_ID, id);
             MovieDetailFragment fragment = new MovieDetailFragment();
             fragment.setArguments(arguments);
             getSupportFragmentManager().beginTransaction()

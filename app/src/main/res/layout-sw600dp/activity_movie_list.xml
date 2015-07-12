@@ -16,7 +16,7 @@
 
     <fragment
         android:id="@+id/movie_list"
-        android:name="com.dsvoronin.udacitymovies.MoviesGridFragment"
+        android:name="com.dsvoronin.udacitymovies.grid.MoviesGridFragment"
         android:layout_width="0dp"
         android:layout_height="match_parent"
         android:layout_weight="1"

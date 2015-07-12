@@ -1,4 +1,4 @@
-package com.dsvoronin.udacitymovies;
+package com.dsvoronin.udacitymovies.detail;
 
 import android.support.v7.app.AppCompatActivity;
 import android.content.Intent;
@@ -6,11 +6,14 @@ import android.os.Bundle;
 import android.support.v4.app.NavUtils;
 import android.view.MenuItem;
 
+import com.dsvoronin.udacitymovies.grid.MoviesGridActivity;
+import com.dsvoronin.udacitymovies.R;
+
 /**
  * An activity representing a single Movie detail screen. This
  * activity is only used on handset devices. On tablet-size devices,
  * item details are presented side-by-side with a list of items
- * in a {@link MovieListActivity}.
+ * in a {@link MoviesGridActivity}.
  * <p/>
  * This activity is mostly just a 'shell' activity containing nothing
  * more than a {@link MovieDetailFragment}.
@@ -59,7 +62,7 @@ public class MovieDetailActivity extends AppCompatActivity {
             //
             // http://developer.android.com/design/patterns/navigation.html#up-vs-back
             //
-            NavUtils.navigateUpTo(this, new Intent(this, MovieListActivity.class));
+            NavUtils.navigateUpTo(this, new Intent(this, MoviesGridActivity.class));
             return true;
         }
         return super.onOptionsItemSelected(item);
