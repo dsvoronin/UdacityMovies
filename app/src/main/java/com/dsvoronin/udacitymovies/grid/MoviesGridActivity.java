@@ -8,6 +8,7 @@ import android.view.MenuItem;
 
 import com.dsvoronin.udacitymovies.R;
 import com.dsvoronin.udacitymovies.core.MasterCallbacks;
+import com.dsvoronin.udacitymovies.data.Movie;
 import com.dsvoronin.udacitymovies.data.SortBy;
 import com.dsvoronin.udacitymovies.detail.MovieDetailActivity;
 import com.dsvoronin.udacitymovies.detail.MovieDetailFragment;
@@ -65,13 +66,13 @@ public class MoviesGridActivity extends AppCompatActivity implements MasterCallb
      * indicating that the item with the given ID was selected.
      */
     @Override
-    public void onItemSelected(long id) {
+    public void onItemSelected(Movie movie) {
         if (mTwoPane) {
             // In two-pane mode, show the detail view in this activity by
             // adding or replacing the detail fragment using a
             // fragment transaction.
             Bundle arguments = new Bundle();
-            arguments.putLong(MovieDetailFragment.ARG_ITEM_ID, id);
+            arguments.putParcelable(MovieDetailFragment.ARG_ITEM, movie);
             MovieDetailFragment fragment = new MovieDetailFragment();
             fragment.setArguments(arguments);
             getSupportFragmentManager().beginTransaction()
@@ -82,7 +83,7 @@ public class MoviesGridActivity extends AppCompatActivity implements MasterCallb
             // In single-pane mode, simply start the detail activity
             // for the selected item ID.
             Intent detailIntent = new Intent(this, MovieDetailActivity.class);
-            detailIntent.putExtra(MovieDetailFragment.ARG_ITEM_ID, id);
+            detailIntent.putExtra(MovieDetailFragment.ARG_ITEM, movie);
             startActivity(detailIntent);
         }
     }

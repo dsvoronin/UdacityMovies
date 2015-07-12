@@ -8,6 +8,7 @@ import android.widget.AbsListView;
 import android.widget.GridView;
 import android.widget.ImageView;
 
+import com.dsvoronin.udacitymovies.R;
 import com.dsvoronin.udacitymovies.data.Movie;
 import com.squareup.picasso.Picasso;
 
@@ -57,6 +58,8 @@ public class MoviesAdapter extends BindableAdapter<Movie> implements Action1<Lis
         picasso.load(item.posterPath)
                 .resize(imageWidth, (int) (imageWidth * ASPECT))
                 .centerCrop()
+                .placeholder(R.drawable.noposter)
+                .error(R.drawable.noposter)
                 .into((ImageView) view);
     }
 

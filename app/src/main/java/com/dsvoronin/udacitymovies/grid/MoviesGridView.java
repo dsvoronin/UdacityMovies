@@ -43,7 +43,6 @@ public class MoviesGridView implements View {
 
         gridView.setAdapter(adapter);
         gridView.setChoiceMode(isTablet ? ListView.CHOICE_MODE_SINGLE : ListView.CHOICE_MODE_NONE);
-
         gridView.setColumnWidth(imageWidth);
 
         subscribeToModel();
@@ -86,6 +85,8 @@ public class MoviesGridView implements View {
         return (GridView) LayoutInflater.from(context).inflate(R.layout.grid, parent, false);
     }
 
+    //todo add progress (possibly SwipeRefresh)
+    //todo replace with ViewAnimator with error state
     private final Action1<Throwable> moviesError = new Action1<Throwable>() {
         @Override
         public void call(Throwable throwable) {

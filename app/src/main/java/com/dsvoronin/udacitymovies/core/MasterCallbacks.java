@@ -1,5 +1,7 @@
 package com.dsvoronin.udacitymovies.core;
 
+import com.dsvoronin.udacitymovies.data.Movie;
+
 /**
  * A callback interface that all activities containing this fragment must
  * implement. This mechanism allows activities to be notified of item
@@ -9,7 +11,7 @@ public interface MasterCallbacks {
     /**
      * Callback for when an item has been selected.
      */
-    void onItemSelected(long id);
+    void onItemSelected(Movie movie);
 
     /**
      * A dummy implementation of the {@link MasterCallbacks} interface that does
@@ -17,7 +19,7 @@ public interface MasterCallbacks {
      */
     MasterCallbacks DUMMY_CALLBACKS = new MasterCallbacks() {
         @Override
-        public void onItemSelected(long id) {
+        public void onItemSelected(Movie movie) {
         }
     };
 }

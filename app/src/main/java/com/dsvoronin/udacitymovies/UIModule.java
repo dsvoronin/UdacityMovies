@@ -32,6 +32,7 @@ public class UIModule {
                                 .build();
                     }
                 })
+                .loggingEnabled(BuildConfig.DEBUG)
                 .downloader(new OkHttpDownloader(okHttpClient))
                 .listener(new Picasso.Listener() {
                     @Override

@@ -38,12 +38,12 @@ public class MoviesGridModel implements Model {
                 .share();
     }
 
-    public Observable<Long> selectedMovieIdStream() {
+    public Observable<Movie> selectedMovieStream() {
         return validSelectionsStream()
-                .map(new Func1<OnItemClickEvent, Long>() {
+                .map(new Func1<OnItemClickEvent, Movie>() {
                     @Override
-                    public Long call(OnItemClickEvent movieOnGridClickEvent) {
-                        return movieOnGridClickEvent.id();
+                    public Movie call(OnItemClickEvent event) {
+                        return ((MoviesAdapter) event.parent().getAdapter()).getItem(event.position());
                     }
                 });
     }
