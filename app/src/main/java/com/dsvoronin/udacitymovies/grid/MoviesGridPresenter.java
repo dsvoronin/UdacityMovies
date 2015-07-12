@@ -1,11 +1,10 @@
 package com.dsvoronin.udacitymovies.grid;
 
-import com.dsvoronin.udacitymovies.data.Movie;
-import com.dsvoronin.udacitymovies.data.OnGridClickEvent;
 import com.dsvoronin.udacitymovies.data.SortBy;
 
 import rx.Observable;
 import rx.android.view.OnClickEvent;
+import rx.android.widget.OnItemClickEvent;
 import rx.functions.Func1;
 import rx.subjects.BehaviorSubject;
 import rx.subjects.PublishSubject;
@@ -17,7 +16,7 @@ public class MoviesGridPresenter {
 
     BehaviorSubject<SortBy> sortingSelection = BehaviorSubject.create();
     PublishSubject<OnClickEvent> reloads = PublishSubject.create();
-    PublishSubject<OnGridClickEvent<Movie>> movieSelection = PublishSubject.create();
+    PublishSubject<OnItemClickEvent> itemClicks = PublishSubject.create();
 
     /**
      * Emits user selections of sorting options
@@ -43,8 +42,8 @@ public class MoviesGridPresenter {
     /**
      * Emits movie selections
      */
-    public Observable<OnGridClickEvent<Movie>> movieSelectionStream() {
-        return movieSelection.asObservable();
+    public Observable<OnItemClickEvent> movieSelectionStream() {
+        return itemClicks.asObservable();
     }
 
 }

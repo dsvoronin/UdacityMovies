@@ -56,7 +56,7 @@ public class UIModule {
 
     @Provides
     @Singleton
-    Boolean provideIsTable(DisplayMetrics metrics) {
+    Boolean provideIsTablet(DisplayMetrics metrics) {
         return metrics.widthPixels > metrics.heightPixels;
     }
 

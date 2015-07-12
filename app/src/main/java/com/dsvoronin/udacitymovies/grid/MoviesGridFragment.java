@@ -16,7 +16,6 @@ import com.dsvoronin.udacitymovies.MoviesApp;
 import com.dsvoronin.udacitymovies.UIModule;
 import com.dsvoronin.udacitymovies.core.MasterCallbacks;
 import com.dsvoronin.udacitymovies.data.DataModule;
-import com.dsvoronin.udacitymovies.data.Movie;
 import com.dsvoronin.udacitymovies.data.MovieDBService;
 import com.squareup.picasso.Picasso;
 
@@ -71,11 +70,11 @@ public class MoviesGridFragment extends Fragment {
 
         model = getOrCreateModel(service, presenter);
 
-        AppObservable.bindSupportFragment(MoviesGridFragment.this, model.selectedMovieStream())
-                .subscribe(new Action1<Movie>() {
+        AppObservable.bindSupportFragment(MoviesGridFragment.this, model.selectedMovieIdStream())
+                .subscribe(new Action1<Long>() {
                     @Override
-                    public void call(Movie movie) {
-                        mCallbacks.onItemSelected(movie.id);
+                    public void call(Long movieId) {
+                        mCallbacks.onItemSelected(movieId);
                     }
                 });
     }
@@ -87,7 +86,7 @@ public class MoviesGridFragment extends Fragment {
         view = moviesGridView;
 
         AppObservable.bindSupportFragment(this, view.itemClicksStream())
-                .subscribe(presenter.movieSelection);
+                .subscribe(presenter.itemClicks);
 
         return moviesGridView.getView();
     }

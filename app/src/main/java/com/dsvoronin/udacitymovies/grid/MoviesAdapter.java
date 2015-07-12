@@ -13,7 +13,9 @@ import com.squareup.picasso.Picasso;
 import java.util.ArrayList;
 import java.util.List;
 
-public class MoviesAdapter extends BindableAdapter<Movie> {
+import rx.functions.Action1;
+
+public class MoviesAdapter extends BindableAdapter<Movie> implements Action1<List<Movie>> {
 
     private List<Movie> data = new ArrayList<>();
     private final Picasso picasso;
@@ -29,12 +31,6 @@ public class MoviesAdapter extends BindableAdapter<Movie> {
         } else {
             imageSize = metrics.widthPixels / 2;
         }
-    }
-
-    public void replace(List<Movie> newData) {
-        data.clear();
-        data.addAll(newData);
-        notifyDataSetChanged();
     }
 
     @Override
@@ -64,5 +60,10 @@ public class MoviesAdapter extends BindableAdapter<Movie> {
                 .into((ImageView) view);
     }
 
-
+    @Override
+    public void call(List<Movie> movies) {
+        data.clear();
+        data.addAll(movies);
+        notifyDataSetChanged();
+    }
 }
