@@ -14,15 +14,15 @@ import android.support.v4.app.FragmentActivity;
  * item details side-by-side using two vertical panes.
  * <p/>
  * The activity makes heavy use of fragments. The list of items is a
- * {@link MovieListFragment} and the item details
+ * {@link MoviesGridFragment} and the item details
  * (if present) is a {@link MovieDetailFragment}.
  * <p/>
  * This activity also implements the required
- * {@link MovieListFragment.Callbacks} interface
+ * {@link MasterCallbacks} interface
  * to listen for item selections.
  */
 public class MovieListActivity extends FragmentActivity
-        implements MovieListFragment.Callbacks {
+        implements MasterCallbacks {
 
     /**
      * Whether or not the activity is in two-pane mode, i.e. running on a tablet
@@ -44,7 +44,7 @@ public class MovieListActivity extends FragmentActivity
 
             // In two-pane mode, list items should be given the
             // 'activated' state when touched.
-            ((MovieListFragment) getSupportFragmentManager()
+            ((MoviesGridFragment) getSupportFragmentManager()
                     .findFragmentById(R.id.movie_list))
                     .setActivateOnItemClick(true);
         }
@@ -53,7 +53,7 @@ public class MovieListActivity extends FragmentActivity
     }
 
     /**
-     * Callback method from {@link MovieListFragment.Callbacks}
+     * Callback method from {@link MasterCallbacks}
      * indicating that the item with the given ID was selected.
      */
     @Override
