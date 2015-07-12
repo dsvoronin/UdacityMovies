@@ -87,7 +87,7 @@ public class MoviesGridFragment extends Fragment {
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        MoviesGridView moviesGridView = new MoviesGridView(getActivity(), model, picasso, metrics, isTablet);
+        MoviesGridView moviesGridView = new MoviesGridView(getActivity(), container, model, picasso, metrics, isTablet);
         view = moviesGridView;
 
         bindSupportFragment(this, view.itemClicksStream())

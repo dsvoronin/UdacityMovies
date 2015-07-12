@@ -4,6 +4,8 @@ import android.content.Context;
 import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
 import android.util.DisplayMetrics;
+import android.view.LayoutInflater;
+import android.view.ViewGroup;
 import android.widget.GridView;
 import android.widget.ListView;
 
@@ -30,13 +32,19 @@ public class MoviesGridView implements View {
     private final GridView gridView;
     private final MoviesAdapter adapter;
 
-    public MoviesGridView(final Context context, MoviesGridModel model, Picasso picasso, DisplayMetrics metrics, Boolean isTablet) {
+    public MoviesGridView(final Context context, ViewGroup parent, MoviesGridModel model, Picasso picasso, DisplayMetrics metrics, Boolean isTablet) {
         this.context = new WeakReference<>(context);
         this.model = new WeakReference<>(model);
-        this.adapter = new MoviesAdapter(context, picasso, metrics, isTablet);
-        this.gridView = createView(context);
 
+        int imageWidth = determineImageWidth(isTablet, metrics);
+
+        this.adapter = new MoviesAdapter(context, picasso, imageWidth);
+        this.gridView = createView(context, parent);
+
+        gridView.setAdapter(adapter);
         gridView.setChoiceMode(isTablet ? ListView.CHOICE_MODE_SINGLE : ListView.CHOICE_MODE_NONE);
+
+        gridView.setColumnWidth(imageWidth);
 
         subscribeToModel();
 
@@ -74,12 +82,8 @@ public class MoviesGridView implements View {
         }
     }
 
-    private GridView createView(Context context) {
-        GridView gridView = new GridView(context);
-        gridView.setNumColumns(GridView.AUTO_FIT);
-        gridView.setAdapter(adapter);
-        gridView.setStretchMode(GridView.STRETCH_COLUMN_WIDTH);
-        return gridView;
+    private GridView createView(Context context, ViewGroup parent) {
+        return (GridView) LayoutInflater.from(context).inflate(R.layout.grid, parent, false);
     }
 
     private final Action1<Throwable> moviesError = new Action1<Throwable>() {
@@ -99,4 +103,12 @@ public class MoviesGridView implements View {
             }
         }
     };
+
+    private int determineImageWidth(boolean isTablet, DisplayMetrics metrics) {
+        if (isTablet) {
+            return metrics.widthPixels / 4;
+        } else {
+            return metrics.widthPixels / 2;
+        }
+    }
 }

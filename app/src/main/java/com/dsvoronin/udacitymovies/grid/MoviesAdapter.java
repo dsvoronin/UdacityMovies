@@ -1,10 +1,11 @@
 package com.dsvoronin.udacitymovies.grid;
 
 import android.content.Context;
-import android.util.DisplayMetrics;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AbsListView;
+import android.widget.GridView;
 import android.widget.ImageView;
 
 import com.dsvoronin.udacitymovies.data.Movie;
@@ -19,18 +20,13 @@ public class MoviesAdapter extends BindableAdapter<Movie> implements Action1<Lis
 
     private List<Movie> data = new ArrayList<>();
     private final Picasso picasso;
-    private int imageSize;
     private static final float ASPECT = 1.5f;
+    private final int imageWidth;
 
-    public MoviesAdapter(Context context, Picasso picasso, DisplayMetrics metrics, Boolean isTablet) {
+    public MoviesAdapter(Context context, Picasso picasso, int imageWidth) {
         super(context);
         this.picasso = picasso;
-
-        if (isTablet) {
-            imageSize = metrics.widthPixels / 4;
-        } else {
-            imageSize = metrics.widthPixels / 2;
-        }
+        this.imageWidth = imageWidth;
     }
 
     @Override
@@ -50,13 +46,17 @@ public class MoviesAdapter extends BindableAdapter<Movie> implements Action1<Lis
 
     @Override
     public View newView(LayoutInflater inflater, int position, ViewGroup container) {
-        return new ImageView(getContext());
+        ImageView imageView = new ImageView(getContext());
+        AbsListView.LayoutParams params = new GridView.LayoutParams(imageWidth, (int) (imageWidth * ASPECT));
+        imageView.setLayoutParams(params);
+        return imageView;
     }
 
     @Override
     public void bindView(Movie item, int position, View view) {
         picasso.load(item.posterPath)
-                .resize(imageSize, (int) (imageSize * ASPECT))
+                .resize(imageWidth, (int) (imageWidth * ASPECT))
+                .centerCrop()
                 .into((ImageView) view);
     }
 
