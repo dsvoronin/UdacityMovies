@@ -4,4 +4,7 @@
 
     <string name="loading_error">Can\'t load movies</string>
     <string name="loading_error_action">Retry</string>
+
+    <string name="sort_by_popularity">Sort by popularity</string>
+    <string name="sort_by_rating">Sort by rating</string>
 </resources>

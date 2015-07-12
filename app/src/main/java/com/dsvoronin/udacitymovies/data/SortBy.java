@@ -1,7 +1,7 @@
 package com.dsvoronin.udacitymovies.data;
 
 public enum SortBy {
-    POPULARITY_DESC("popularity.desc");
+    POPULARITY_DESC("popularity.desc"), VOTE_AVERAGE_DESC("vote_average.desc");
 
     private final String serializeName;
 

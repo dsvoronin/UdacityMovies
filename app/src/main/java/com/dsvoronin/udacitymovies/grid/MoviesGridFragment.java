@@ -21,8 +21,9 @@ import com.squareup.picasso.Picasso;
 
 import javax.inject.Inject;
 
-import rx.android.app.AppObservable;
 import rx.functions.Action1;
+
+import static rx.android.app.AppObservable.bindSupportFragment;
 
 public class MoviesGridFragment extends Fragment {
 
@@ -70,13 +71,17 @@ public class MoviesGridFragment extends Fragment {
 
         model = getOrCreateModel(service, presenter);
 
-        AppObservable.bindSupportFragment(MoviesGridFragment.this, model.selectedMovieIdStream())
+        bindSupportFragment(MoviesGridFragment.this, model.selectedMovieIdStream())
                 .subscribe(new Action1<Long>() {
                     @Override
                     public void call(Long movieId) {
                         mCallbacks.onItemSelected(movieId);
                     }
                 });
+
+        MoviesGridActivity gridActivity = (MoviesGridActivity) activity;
+        bindSupportFragment(MoviesGridFragment.this, gridActivity.getSortBySubject()).
+                subscribe(presenter.sortingSelection);
     }
 
     @Nullable
@@ -85,7 +90,7 @@ public class MoviesGridFragment extends Fragment {
         MoviesGridView moviesGridView = new MoviesGridView(getActivity(), model, picasso, metrics, isTablet);
         view = moviesGridView;
 
-        AppObservable.bindSupportFragment(this, view.itemClicksStream())
+        bindSupportFragment(this, view.itemClicksStream())
                 .subscribe(presenter.itemClicks);
 
         return moviesGridView.getView();

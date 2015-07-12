@@ -2,12 +2,18 @@ package com.dsvoronin.udacitymovies.grid;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.v4.app.FragmentActivity;
+import android.support.v7.app.AppCompatActivity;
+import android.view.Menu;
+import android.view.MenuItem;
 
 import com.dsvoronin.udacitymovies.R;
 import com.dsvoronin.udacitymovies.core.MasterCallbacks;
+import com.dsvoronin.udacitymovies.data.SortBy;
 import com.dsvoronin.udacitymovies.detail.MovieDetailActivity;
 import com.dsvoronin.udacitymovies.detail.MovieDetailFragment;
+
+import rx.Observable;
+import rx.subjects.PublishSubject;
 
 
 /**
@@ -26,7 +32,7 @@ import com.dsvoronin.udacitymovies.detail.MovieDetailFragment;
  * {@link MasterCallbacks} interface
  * to listen for item selections.
  */
-public class MoviesGridActivity extends FragmentActivity implements MasterCallbacks {
+public class MoviesGridActivity extends AppCompatActivity implements MasterCallbacks {
 
     /**
      * Whether or not the activity is in two-pane mode, i.e. running on a tablet
@@ -34,10 +40,14 @@ public class MoviesGridActivity extends FragmentActivity implements MasterCallba
      */
     private boolean mTwoPane;
 
+    private PublishSubject<SortBy> sortBySubject = PublishSubject.create();
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_movie_list);
+
+        setTitle(R.string.app_name);
 
         if (findViewById(R.id.movie_detail_container) != null) {
             // The detail container view will be present only in the
@@ -74,6 +84,30 @@ public class MoviesGridActivity extends FragmentActivity implements MasterCallba
             Intent detailIntent = new Intent(this, MovieDetailActivity.class);
             detailIntent.putExtra(MovieDetailFragment.ARG_ITEM_ID, id);
             startActivity(detailIntent);
+        }
+    }
+
+    public Observable<SortBy> getSortBySubject() {
+        return sortBySubject.asObservable();
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.sorting, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.sort_by_popularity:
+                sortBySubject.onNext(SortBy.POPULARITY_DESC);
+                return true;
+            case R.id.sort_by_rating:
+                sortBySubject.onNext(SortBy.VOTE_AVERAGE_DESC);
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
         }
     }
 }
