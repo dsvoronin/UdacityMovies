@@ -68,9 +68,9 @@ public class MoviesGridFragment extends Fragment {
 
         mCallbacks = (MasterCallbacks) activity;
 
-        presenter = new MoviesGridPresenter();
 
-        model = getOrCreateModel(service, presenter);
+        model = getOrCreateModel(service);
+        presenter = model.getPresenter();
 
         bindSupportFragment(MoviesGridFragment.this, model.selectedMovieStream())
                 .subscribe(new Action1<Movie>() {
@@ -111,14 +111,14 @@ public class MoviesGridFragment extends Fragment {
         mCallbacks = MasterCallbacks.DUMMY_CALLBACKS;
     }
 
-    private MoviesGridModel getOrCreateModel(MovieDBService service, MoviesGridPresenter presenter) {
+    private MoviesGridModel getOrCreateModel(MovieDBService service) {
         String MODEL_TAG = "movies_grid_model";
         MoviesModelFragment modelFragment;
         FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
         Fragment fragment = fragmentManager.findFragmentByTag(MODEL_TAG);
         if (fragment == null) {
             modelFragment = new MoviesModelFragment();
-            modelFragment.setModel(new MoviesGridModel(service, presenter));
+            modelFragment.setModel(new MoviesGridModel(service, new MoviesGridPresenter()));
             fragmentManager.beginTransaction()
                     .add(modelFragment, MODEL_TAG)
                     .commit();

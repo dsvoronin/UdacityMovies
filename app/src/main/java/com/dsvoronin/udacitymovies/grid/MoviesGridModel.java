@@ -27,6 +27,10 @@ public class MoviesGridModel implements Model {
         this.presenter = presenter;
     }
 
+    public MoviesGridPresenter getPresenter() {
+        return presenter;
+    }
+
     private Observable<OnItemClickEvent> validSelectionsStream() {
         return presenter.movieSelectionStream().asObservable()
                 .filter(new Func1<OnItemClickEvent, Boolean>() {
