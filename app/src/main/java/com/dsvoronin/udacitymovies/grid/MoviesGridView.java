@@ -9,9 +9,11 @@ import android.view.ViewGroup;
 import android.widget.GridView;
 import android.widget.ListView;
 
+import com.dsvoronin.udacitymovies.MoviesApp;
 import com.dsvoronin.udacitymovies.R;
 import com.dsvoronin.udacitymovies.core.View;
 import com.dsvoronin.udacitymovies.data.Movie;
+import com.squareup.leakcanary.RefWatcher;
 import com.squareup.picasso.Picasso;
 
 import java.lang.ref.WeakReference;
@@ -21,6 +23,7 @@ import rx.Observable;
 import rx.android.widget.OnItemClickEvent;
 import rx.android.widget.WidgetObservable;
 import rx.functions.Action1;
+import rx.subscriptions.CompositeSubscription;
 import timber.log.Timber;
 
 import static rx.android.view.ViewObservable.bindView;
@@ -31,6 +34,7 @@ public class MoviesGridView implements View {
     private final WeakReference<MoviesGridModel> model;
     private final GridView gridView;
     private final MoviesAdapter adapter;
+    private CompositeSubscription subscription = new CompositeSubscription();
 
     public MoviesGridView(final Context context, ViewGroup parent, MoviesGridModel model, Picasso picasso, DisplayMetrics metrics, Boolean isTablet) {
         this.context = new WeakReference<>(context);
@@ -47,13 +51,13 @@ public class MoviesGridView implements View {
 
         subscribeToModel();
 
-        bindView(gridView, model.activatedPositionStream())
+        subscription.add(bindView(gridView, model.activatedPositionStream())
                 .subscribe(new Action1<Integer>() {
                     @Override
                     public void call(Integer position) {
                         setActivatedPosition(position);
                     }
-                });
+                }));
     }
 
     public android.view.View getView() {
@@ -74,15 +78,21 @@ public class MoviesGridView implements View {
     private void subscribeToModel() {
         MoviesGridModel model = this.model.get();
         if (model != null) {
-            bindView(gridView, model.dataStream())
+            subscription.add(bindView(gridView, model.dataStream())
                     .doOnError(moviesError)
                     .onErrorResumeNext(Observable.<List<Movie>>empty())
-                    .subscribe(adapter);
+                    .subscribe(adapter));
         }
     }
 
     private GridView createView(Context context, ViewGroup parent) {
         return (GridView) LayoutInflater.from(context).inflate(R.layout.grid, parent, false);
+    }
+
+    public void onDestroy() {
+        subscription.clear();
+        RefWatcher refWatcher = MoviesApp.getRefWatcher(context.get());
+        refWatcher.watch(this);
     }
 
     //todo add progress (possibly SwipeRefresh)

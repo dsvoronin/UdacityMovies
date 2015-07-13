@@ -18,11 +18,13 @@ import com.dsvoronin.udacitymovies.core.MasterCallbacks;
 import com.dsvoronin.udacitymovies.data.DataModule;
 import com.dsvoronin.udacitymovies.data.Movie;
 import com.dsvoronin.udacitymovies.data.MovieDBService;
+import com.squareup.leakcanary.RefWatcher;
 import com.squareup.picasso.Picasso;
 
 import javax.inject.Inject;
 
 import rx.functions.Action1;
+import rx.subscriptions.CompositeSubscription;
 
 import static rx.android.app.AppObservable.bindSupportFragment;
 
@@ -50,6 +52,8 @@ public class MoviesGridFragment extends Fragment {
     @Inject
     MovieDBService service;
 
+    private CompositeSubscription subscription = new CompositeSubscription();
+
     @Override
     public void onAttach(Activity activity) {
         super.onAttach(activity);
@@ -71,17 +75,17 @@ public class MoviesGridFragment extends Fragment {
         model = getOrCreateModel(service);
         presenter = model.getPresenter();
 
-        bindSupportFragment(MoviesGridFragment.this, model.selectedMovieStream())
+        subscription.add(bindSupportFragment(MoviesGridFragment.this, model.selectedMovieStream())
                 .subscribe(new Action1<Movie>() {
                     @Override
                     public void call(Movie movie) {
                         mCallbacks.onItemSelected(movie);
                     }
-                });
+                }));
 
         MoviesGridActivity gridActivity = (MoviesGridActivity) activity;
-        bindSupportFragment(MoviesGridFragment.this, gridActivity.getSortBySubject()).
-                subscribe(presenter.sortingSelection);
+        subscription.add(bindSupportFragment(MoviesGridFragment.this, gridActivity.getSortBySubject()).
+                subscribe(presenter.sortingSelection));
     }
 
     @Nullable
@@ -90,8 +94,8 @@ public class MoviesGridFragment extends Fragment {
         MoviesGridView moviesGridView = new MoviesGridView(getActivity(), container, model, picasso, metrics, isTablet);
         view = moviesGridView;
 
-        bindSupportFragment(this, view.itemClicksStream())
-                .subscribe(presenter.itemClicks);
+        subscription.add(bindSupportFragment(this, view.itemClicksStream())
+                .subscribe(presenter.itemClicks));
 
         return moviesGridView.getView();
     }
@@ -99,12 +103,21 @@ public class MoviesGridFragment extends Fragment {
     @Override
     public void onDestroyView() {
         super.onDestroyView();
+        view.onDestroy();
         view = null;
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        RefWatcher refWatcher = MoviesApp.getRefWatcher(getActivity());
+        refWatcher.watch(this);
     }
 
     @Override
     public void onDetach() {
         super.onDetach();
+        subscription.clear();
         model = null;
         // Reset the active callbacks interface to the dummy implementation.
         mCallbacks = MasterCallbacks.DUMMY_CALLBACKS;

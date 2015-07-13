@@ -33,7 +33,6 @@ public class MoviesGridModel implements Model {
     public MoviesGridModel(MovieDBService service, MoviesGridPresenter presenter) {
         this.service = service;
         this.presenter = presenter;
-        dataStream().subscribe();
     }
 
     public MoviesGridPresenter getPresenter() {
@@ -121,9 +120,7 @@ public class MoviesGridModel implements Model {
                                     }
                                 });
                     }
-                })
-                .replay(1)
-                .refCount();
+                });
     }
 
     // Simple logging to let us know what each source is returning
