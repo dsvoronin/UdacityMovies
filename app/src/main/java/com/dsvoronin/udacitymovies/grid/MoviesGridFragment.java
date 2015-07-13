@@ -68,7 +68,6 @@ public class MoviesGridFragment extends Fragment {
 
         mCallbacks = (MasterCallbacks) activity;
 
-
         model = getOrCreateModel(service);
         presenter = model.getPresenter();
 
