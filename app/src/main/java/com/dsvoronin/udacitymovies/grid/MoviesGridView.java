@@ -54,7 +54,6 @@ public class MoviesGridView implements View {
                         setActivatedPosition(position);
                     }
                 });
-
     }
 
     public android.view.View getView() {
@@ -64,6 +63,7 @@ public class MoviesGridView implements View {
     private void setActivatedPosition(int position) {
         if (position != ListView.INVALID_POSITION) {
             gridView.setItemChecked(position, true);
+            gridView.setSelection(position);
         }
     }
 
