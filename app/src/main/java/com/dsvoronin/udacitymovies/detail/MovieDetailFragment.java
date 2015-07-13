@@ -32,14 +32,12 @@ public class MovieDetailFragment extends Fragment {
      * represents.
      */
     public static final String ARG_ITEM = "item";
-
+    @Inject
+    Picasso picasso;
     /**
      * The dummy content this fragment is presenting.
      */
     private Movie movie;
-
-    @Inject
-    Picasso picasso;
 
     /**
      * Mandatory empty constructor for the fragment manager to instantiate the

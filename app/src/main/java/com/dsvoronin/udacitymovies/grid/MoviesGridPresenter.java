@@ -11,12 +11,11 @@ import rx.subjects.PublishSubject;
 
 public class MoviesGridPresenter {
 
-    public MoviesGridPresenter() {
-    }
-
     BehaviorSubject<SortBy> sortingSelection = BehaviorSubject.create();
     PublishSubject<OnClickEvent> reloads = PublishSubject.create();
     PublishSubject<OnItemClickEvent> itemClicks = PublishSubject.create();
+    public MoviesGridPresenter() {
+    }
 
     /**
      * Emits user selections of sorting options

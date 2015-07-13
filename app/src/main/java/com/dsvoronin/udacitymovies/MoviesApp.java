@@ -12,15 +12,15 @@ public class MoviesApp extends Application {
 
     private RefWatcher refWatcher;
 
+    public static RefWatcher getRefWatcher(Context context) {
+        MoviesApp application = (MoviesApp) context.getApplicationContext();
+        return application.refWatcher;
+    }
+
     @Override
     public void onCreate() {
         super.onCreate();
         refWatcher = LeakCanary.install(this);
         Timber.plant(BuildConfig.DEBUG ? new Timber.DebugTree() : new CrashReportingtree());
-    }
-
-    public static RefWatcher getRefWatcher(Context context) {
-        MoviesApp application = (MoviesApp) context.getApplicationContext();
-        return application.refWatcher;
     }
 }

@@ -14,6 +14,8 @@ import com.dsvoronin.udacitymovies.AppModule;
 import com.dsvoronin.udacitymovies.DaggerAppComponent;
 import com.dsvoronin.udacitymovies.MoviesApp;
 import com.dsvoronin.udacitymovies.UIModule;
+import com.dsvoronin.udacitymovies.core.ImageEndpoint;
+import com.dsvoronin.udacitymovies.core.ImageQualifier;
 import com.dsvoronin.udacitymovies.core.MasterCallbacks;
 import com.dsvoronin.udacitymovies.data.DataModule;
 import com.dsvoronin.udacitymovies.data.Movie;
@@ -30,28 +32,28 @@ import static rx.android.app.AppObservable.bindSupportFragment;
 
 public class MoviesGridFragment extends Fragment {
 
+    @Inject
+    Picasso picasso;
+    @Inject
+    DisplayMetrics metrics;
+    @Inject
+    Boolean isTablet;
+    @Inject
+    MovieDBService service;
+    @Inject
+    @ImageQualifier
+    String imageQualifier;
+    @Inject
+    @ImageEndpoint
+    String imageEndpoint;
     /**
      * The fragment's current callback object, which is notified of list item
      * clicks.
      */
     private MasterCallbacks mCallbacks = MasterCallbacks.DUMMY_CALLBACKS;
-
     private MoviesGridModel model;
     private MoviesGridView view;
     private MoviesGridPresenter presenter;
-
-    @Inject
-    Picasso picasso;
-
-    @Inject
-    DisplayMetrics metrics;
-
-    @Inject
-    Boolean isTablet;
-
-    @Inject
-    MovieDBService service;
-
     private CompositeSubscription subscription = new CompositeSubscription();
 
     @Override
@@ -91,7 +93,7 @@ public class MoviesGridFragment extends Fragment {
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        MoviesGridView moviesGridView = new MoviesGridView(getActivity(), container, model, picasso, metrics, isTablet);
+        MoviesGridView moviesGridView = new MoviesGridView(getActivity(), container, model, picasso, metrics, isTablet, imageEndpoint, imageQualifier);
         view = moviesGridView;
 
         subscription.add(bindSupportFragment(this, view.itemClicksStream())

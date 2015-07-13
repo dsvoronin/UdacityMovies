@@ -13,12 +13,12 @@ public abstract class ModelRetainedContainer<T extends Model> extends Fragment {
         setRetainInstance(true);
     }
 
-    public void setModel(T model) {
-        this.model = model;
-    }
-
     public T getModel() {
         return model;
+    }
+
+    public void setModel(T model) {
+        this.model = model;
     }
 
 }

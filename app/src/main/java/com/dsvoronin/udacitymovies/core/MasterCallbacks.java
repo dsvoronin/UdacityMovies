@@ -9,11 +9,6 @@ import com.dsvoronin.udacitymovies.data.Movie;
  */
 public interface MasterCallbacks {
     /**
-     * Callback for when an item has been selected.
-     */
-    void onItemSelected(Movie movie);
-
-    /**
      * A dummy implementation of the {@link MasterCallbacks} interface that does
      * nothing. Used only when this fragment is not attached to an activity.
      */
@@ -22,4 +17,9 @@ public interface MasterCallbacks {
         public void onItemSelected(Movie movie) {
         }
     };
+
+    /**
+     * Callback for when an item has been selected.
+     */
+    void onItemSelected(Movie movie);
 }

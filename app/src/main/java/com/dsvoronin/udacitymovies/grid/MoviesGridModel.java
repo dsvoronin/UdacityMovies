@@ -123,6 +123,11 @@ public class MoviesGridModel implements Model {
                 });
     }
 
+    public void clearMemory() {
+        Timber.d("Wiping memory...");
+        inMemoryCache.clear();
+    }
+
     // Simple logging to let us know what each source is returning
     private static class Logger implements Observable.Transformer<List<Movie>, List<Movie>> {
         private final DataSource source;
@@ -140,11 +145,6 @@ public class MoviesGridModel implements Model {
             }
             return data;
         }
-    }
-
-    public void clearMemory() {
-        Timber.d("Wiping memory...");
-        inMemoryCache.clear();
     }
 
 }

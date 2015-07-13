@@ -10,6 +10,7 @@ import android.widget.ImageView;
 
 import com.dsvoronin.udacitymovies.R;
 import com.dsvoronin.udacitymovies.data.Movie;
+import com.squareup.picasso.MemoryPolicy;
 import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
@@ -19,15 +20,19 @@ import rx.functions.Action1;
 
 public class MoviesAdapter extends BindableAdapter<Movie> implements Action1<List<Movie>> {
 
-    private List<Movie> data = new ArrayList<>();
-    private final Picasso picasso;
     private static final float ASPECT = 1.5f;
+    private final Picasso picasso;
     private final int imageWidth;
+    private final String imageEndpoint;
+    private final String imageQualifier;
+    private List<Movie> data = new ArrayList<>();
 
-    public MoviesAdapter(Context context, Picasso picasso, int imageWidth) {
+    public MoviesAdapter(Context context, Picasso picasso, int imageWidth, String imageEndpoint, String imageQualifier) {
         super(context);
         this.picasso = picasso;
         this.imageWidth = imageWidth;
+        this.imageEndpoint = imageEndpoint;
+        this.imageQualifier = imageQualifier;
     }
 
     @Override
@@ -57,6 +62,7 @@ public class MoviesAdapter extends BindableAdapter<Movie> implements Action1<Lis
     public void bindView(Movie item, int position, View view) {
         picasso.load(item.posterPath)
                 .fit()
+                .memoryPolicy(MemoryPolicy.NO_STORE)
                 .placeholder(R.drawable.noposter)
                 .error(R.drawable.noposter)
                 .into((ImageView) view);

@@ -2,8 +2,6 @@ package com.dsvoronin.udacitymovies;
 
 import android.app.Application;
 
-import com.squareup.okhttp.OkHttpClient;
-
 import javax.inject.Singleton;
 
 import dagger.Module;
@@ -24,9 +22,4 @@ public class AppModule {
         return app;
     }
 
-    @Provides
-    @Singleton
-    OkHttpClient provideOkHttpClient() {
-        return new OkHttpClient();
-    }
 }

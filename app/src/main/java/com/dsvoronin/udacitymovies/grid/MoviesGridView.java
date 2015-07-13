@@ -35,14 +35,33 @@ public class MoviesGridView implements View {
     private final GridView gridView;
     private final MoviesAdapter adapter;
     private CompositeSubscription subscription = new CompositeSubscription();
+    //todo add progress (possibly SwipeRefresh)
+    //todo replace with ViewAnimator with error state
+    private final Action1<Throwable> moviesError = new Action1<Throwable>() {
+        @Override
+        public void call(Throwable throwable) {
+            Timber.e(throwable, "Error while loading movies");
+            Context context = MoviesGridView.this.context.get();
+            if (context != null) {
+                Snackbar.make(gridView, R.string.loading_error, Snackbar.LENGTH_LONG)
+                        .setAction(R.string.loading_error_action, new android.view.View.OnClickListener() {
+                            @Override
+                            public void onClick(@NonNull android.view.View v) {
+                                subscribeToModel();
+                            }
+                        })
+                        .show();
+            }
+        }
+    };
 
-    public MoviesGridView(final Context context, ViewGroup parent, MoviesGridModel model, Picasso picasso, DisplayMetrics metrics, Boolean isTablet) {
+    public MoviesGridView(final Context context, ViewGroup parent, MoviesGridModel model, Picasso picasso, DisplayMetrics metrics, Boolean isTablet, String imageEndpoint, String imageQualifier) {
         this.context = new WeakReference<>(context);
         this.model = new WeakReference<>(model);
 
         int imageWidth = determineImageWidth(isTablet, metrics);
 
-        this.adapter = new MoviesAdapter(context, picasso, imageWidth);
+        this.adapter = new MoviesAdapter(context, picasso, imageWidth, imageEndpoint, imageQualifier);
         this.gridView = createView(context, parent);
 
         gridView.setAdapter(adapter);
@@ -94,26 +113,6 @@ public class MoviesGridView implements View {
         RefWatcher refWatcher = MoviesApp.getRefWatcher(context.get());
         refWatcher.watch(this);
     }
-
-    //todo add progress (possibly SwipeRefresh)
-    //todo replace with ViewAnimator with error state
-    private final Action1<Throwable> moviesError = new Action1<Throwable>() {
-        @Override
-        public void call(Throwable throwable) {
-            Timber.e(throwable, "Error while loading movies");
-            Context context = MoviesGridView.this.context.get();
-            if (context != null) {
-                Snackbar.make(gridView, R.string.loading_error, Snackbar.LENGTH_LONG)
-                        .setAction(R.string.loading_error_action, new android.view.View.OnClickListener() {
-                            @Override
-                            public void onClick(@NonNull android.view.View v) {
-                                subscribeToModel();
-                            }
-                        })
-                        .show();
-            }
-        }
-    };
 
     private int determineImageWidth(boolean isTablet, DisplayMetrics metrics) {
         if (isTablet) {

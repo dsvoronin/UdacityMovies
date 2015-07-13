@@ -7,18 +7,24 @@ import com.google.gson.annotations.SerializedName;
 
 public class Movie implements Parcelable {
 
+    public static final Creator<Movie> CREATOR = new Creator<Movie>() {
+        @Override
+        public Movie createFromParcel(Parcel in) {
+            return new Movie(in);
+        }
+
+        @Override
+        public Movie[] newArray(int size) {
+            return new Movie[size];
+        }
+    };
     public final long id;
-
     public final String title;
-
     public final String overview;
-
     @SerializedName("poster_path")
     public final String posterPath;
-
     @SerializedName("release_date")
     public final String releaseDate;
-
     @SerializedName("vote_average")
     public final String voteAverage;
 
@@ -40,6 +46,16 @@ public class Movie implements Parcelable {
         voteAverage = in.readString();
     }
 
+    /**
+     * another way to get full image path.
+     * not so good as Picasso injection.
+     * this pojo don't want to know about such details
+     */
+    @Deprecated
+    public String getPosterFullUrl(String endpoint, String qualifier) {
+        return endpoint + qualifier + posterPath;
+    }
+
     @Override
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeLong(id);
@@ -54,18 +70,6 @@ public class Movie implements Parcelable {
     public int describeContents() {
         return 0;
     }
-
-    public static final Creator<Movie> CREATOR = new Creator<Movie>() {
-        @Override
-        public Movie createFromParcel(Parcel in) {
-            return new Movie(in);
-        }
-
-        @Override
-        public Movie[] newArray(int size) {
-            return new Movie[size];
-        }
-    };
 
     @Override
     public String toString() {
