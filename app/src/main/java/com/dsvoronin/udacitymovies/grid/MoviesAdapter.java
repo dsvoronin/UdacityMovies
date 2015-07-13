@@ -56,8 +56,7 @@ public class MoviesAdapter extends BindableAdapter<Movie> implements Action1<Lis
     @Override
     public void bindView(Movie item, int position, View view) {
         picasso.load(item.posterPath)
-                .resize(imageWidth, (int) (imageWidth * ASPECT))
-                .centerCrop()
+                .fit()
                 .placeholder(R.drawable.noposter)
                 .error(R.drawable.noposter)
                 .into((ImageView) view);
