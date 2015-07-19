@@ -2,19 +2,14 @@ package com.dsvoronin.udacitymovies.grid;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
-import android.view.MenuItem;
 
 import com.dsvoronin.udacitymovies.R;
 import com.dsvoronin.udacitymovies.core.MasterCallbacks;
+import com.dsvoronin.udacitymovies.core.RxActivity;
 import com.dsvoronin.udacitymovies.data.Movie;
-import com.dsvoronin.udacitymovies.data.SortBy;
 import com.dsvoronin.udacitymovies.detail.MovieDetailActivity;
 import com.dsvoronin.udacitymovies.detail.MovieDetailFragment;
-
-import rx.Observable;
-import rx.subjects.PublishSubject;
 
 
 /**
@@ -33,15 +28,13 @@ import rx.subjects.PublishSubject;
  * {@link MasterCallbacks} interface
  * to listen for item selections.
  */
-public class MoviesGridActivity extends AppCompatActivity implements MasterCallbacks {
+public class MoviesGridActivity extends RxActivity implements MasterCallbacks {
 
     /**
      * Whether or not the activity is in two-pane mode, i.e. running on a tablet
      * device.
      */
     private boolean mTwoPane;
-
-    private PublishSubject<SortBy> sortBySubject = PublishSubject.create();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -88,27 +81,9 @@ public class MoviesGridActivity extends AppCompatActivity implements MasterCallb
         }
     }
 
-    public Observable<SortBy> getSortBySubject() {
-        return sortBySubject.asObservable();
-    }
-
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.sorting, menu);
         return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-            case R.id.sort_by_popularity:
-                sortBySubject.onNext(SortBy.POPULARITY_DESC);
-                return true;
-            case R.id.sort_by_rating:
-                sortBySubject.onNext(SortBy.VOTE_AVERAGE_DESC);
-                return true;
-            default:
-                return super.onOptionsItemSelected(item);
-        }
     }
 }

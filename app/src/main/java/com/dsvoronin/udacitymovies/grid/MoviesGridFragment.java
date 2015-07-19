@@ -17,6 +17,7 @@ import com.dsvoronin.udacitymovies.UIModule;
 import com.dsvoronin.udacitymovies.core.ImageEndpoint;
 import com.dsvoronin.udacitymovies.core.ImageQualifier;
 import com.dsvoronin.udacitymovies.core.MasterCallbacks;
+import com.dsvoronin.udacitymovies.core.RxActivity;
 import com.dsvoronin.udacitymovies.data.DataModule;
 import com.dsvoronin.udacitymovies.data.Movie;
 import com.dsvoronin.udacitymovies.data.MovieDBService;
@@ -84,10 +85,6 @@ public class MoviesGridFragment extends Fragment {
                         mCallbacks.onItemSelected(movie);
                     }
                 }));
-
-        MoviesGridActivity gridActivity = (MoviesGridActivity) activity;
-        subscription.add(bindSupportFragment(MoviesGridFragment.this, gridActivity.getSortBySubject()).
-                subscribe(presenter.sortingSelection));
     }
 
     @Nullable
@@ -132,7 +129,7 @@ public class MoviesGridFragment extends Fragment {
         Fragment fragment = fragmentManager.findFragmentByTag(MODEL_TAG);
         if (fragment == null) {
             modelFragment = new MoviesModelFragment();
-            modelFragment.setModel(new MoviesGridModel(service, new MoviesGridPresenter()));
+            modelFragment.setModel(new MoviesGridModel(service, new MoviesGridPresenter((RxActivity) getActivity())));
             fragmentManager.beginTransaction()
                     .add(modelFragment, MODEL_TAG)
                     .commit();
