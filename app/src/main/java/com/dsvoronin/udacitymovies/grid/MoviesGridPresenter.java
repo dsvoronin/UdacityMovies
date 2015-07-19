@@ -4,6 +4,7 @@ import android.view.MenuItem;
 
 import com.dsvoronin.udacitymovies.R;
 import com.dsvoronin.udacitymovies.core.RxActivity;
+import com.dsvoronin.udacitymovies.core.RxFragment;
 import com.dsvoronin.udacitymovies.data.SortBy;
 
 import rx.Observable;
@@ -11,23 +12,41 @@ import rx.android.view.OnClickEvent;
 import rx.android.widget.OnItemClickEvent;
 import rx.functions.Func1;
 import rx.subjects.PublishSubject;
+import rx.subscriptions.CompositeSubscription;
 
 public class MoviesGridPresenter {
 
-    private final RxActivity rxActivity;
+    private PublishSubject<MenuItem> optionsItemSelected = PublishSubject.create();
+    private PublishSubject<OnClickEvent> reloads = PublishSubject.create();
+    private PublishSubject<OnItemClickEvent> itemClicks = PublishSubject.create();
 
-    PublishSubject<OnClickEvent> reloads = PublishSubject.create();
-    PublishSubject<OnItemClickEvent> itemClicks = PublishSubject.create();
+    private CompositeSubscription subscription = new CompositeSubscription();
 
-    public MoviesGridPresenter(RxActivity rxActivity) {
-        this.rxActivity = rxActivity;
+    public void attach(RxFragment<MoviesGridView> fragment) {
+        subscription.add(fragment.getAttachStream().flatMap(new Func1<RxActivity, Observable<MenuItem>>() {
+            @Override
+            public Observable<MenuItem> call(RxActivity rxActivity) {
+                return rxActivity.onOptionsItemSelectedStream();
+            }
+        }).subscribe(optionsItemSelected));
+
+        subscription.add(fragment.getViewCreatedStream().flatMap(new Func1<MoviesGridView, Observable<OnItemClickEvent>>() {
+            @Override
+            public Observable<OnItemClickEvent> call(MoviesGridView moviesGridView) {
+                return moviesGridView.itemClicksStream();
+            }
+        }).subscribe(itemClicks));
+    }
+
+    public void detach() {
+        subscription.clear();
     }
 
     /**
      * Emits user selections of sorting options
      */
     public Observable<SortBy> sortingSelectionStream() {
-        Observable<SortBy> popularitySteam = rxActivity.onOptionsItemSelectedStream().filter(new Func1<MenuItem, Boolean>() {
+        Observable<SortBy> popularitySteam = optionsItemSelected.filter(new Func1<MenuItem, Boolean>() {
             @Override
             public Boolean call(MenuItem menuItem) {
                 return menuItem.getItemId() == R.id.sort_by_popularity;
@@ -38,7 +57,7 @@ public class MoviesGridPresenter {
                 return SortBy.POPULARITY_DESC;
             }
         });
-        Observable<SortBy> ratingStream = rxActivity.onOptionsItemSelectedStream().filter(new Func1<MenuItem, Boolean>() {
+        Observable<SortBy> ratingStream = optionsItemSelected.filter(new Func1<MenuItem, Boolean>() {
             @Override
             public Boolean call(MenuItem menuItem) {
                 return menuItem.getItemId() == R.id.sort_by_rating;
@@ -73,5 +92,6 @@ public class MoviesGridPresenter {
     public Observable<OnItemClickEvent> movieSelectionStream() {
         return itemClicks.asObservable();
     }
+
 
 }

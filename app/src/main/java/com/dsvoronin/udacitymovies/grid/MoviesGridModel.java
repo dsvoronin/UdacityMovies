@@ -26,28 +26,20 @@ public class MoviesGridModel implements Model {
 
     private final MovieDBService service;
 
-    private final MoviesGridPresenter presenter;
-
     private final Map<SortBy, List<Movie>> inMemoryCache = new LinkedHashMap<>();
 
-    public MoviesGridModel(MovieDBService service, MoviesGridPresenter presenter) {
+    private MoviesGridPresenter presenter;
+
+    public MoviesGridModel(MovieDBService service) {
         this.service = service;
+    }
+
+    public void attachPresenter(MoviesGridPresenter presenter) {
         this.presenter = presenter;
     }
 
-    public MoviesGridPresenter getPresenter() {
-        return presenter;
-    }
-
-    private Observable<OnItemClickEvent> validSelectionsStream() {
-        return presenter.movieSelectionStream()
-                .filter(new Func1<OnItemClickEvent, Boolean>() {
-                    @Override
-                    public Boolean call(OnItemClickEvent onItemClickEvent) {
-                        return onItemClickEvent.position() != GridView.INVALID_POSITION;
-                    }
-                })
-                .share();
+    public void detachPresenter() {
+        this.presenter = null;
     }
 
     public Observable<Movie> selectedMovieStream() {
@@ -67,37 +59,6 @@ public class MoviesGridModel implements Model {
                 return movieOnGridClickEvent.position();
             }
         });
-    }
-
-    private Observable<List<Movie>> memorySource(final SortBy sortBy) {
-        return Observable.create(new Observable.OnSubscribe<List<Movie>>() {
-            @Override
-            public void call(Subscriber<? super List<Movie>> subscriber) {
-                if (inMemoryCache.containsKey(sortBy)) {
-                    subscriber.onNext(inMemoryCache.get(sortBy));
-                }
-                subscriber.onCompleted();
-            }
-        })
-                .compose(new Logger(DataSource.MEMORY));
-    }
-
-    private Observable<List<Movie>> networkSource(final SortBy sortBy) {
-        return service.getMovies(sortBy)
-                .map(new Func1<DiscoverMoviesResponse, List<Movie>>() {
-                    @Override
-                    public List<Movie> call(DiscoverMoviesResponse discoverMoviesResponse) {
-                        return discoverMoviesResponse.results;
-                    }
-                })
-                .subscribeOn(Schedulers.io())
-                .doOnNext(new Action1<List<Movie>>() {
-                    @Override
-                    public void call(List<Movie> movies) {
-                        inMemoryCache.put(sortBy, movies);
-                    }
-                })
-                .compose(new Logger(DataSource.NETWORK));
     }
 
     public Observable<List<Movie>> dataStream() {
@@ -128,6 +89,48 @@ public class MoviesGridModel implements Model {
         inMemoryCache.clear();
     }
 
+    private Observable<OnItemClickEvent> validSelectionsStream() {
+        return presenter.movieSelectionStream()
+                .filter(new Func1<OnItemClickEvent, Boolean>() {
+                    @Override
+                    public Boolean call(OnItemClickEvent onItemClickEvent) {
+                        return onItemClickEvent.position() != GridView.INVALID_POSITION;
+                    }
+                })
+                .share();
+    }
+
+    private Observable<List<Movie>> networkSource(final SortBy sortBy) {
+        return service.getMovies(sortBy)
+                .map(new Func1<DiscoverMoviesResponse, List<Movie>>() {
+                    @Override
+                    public List<Movie> call(DiscoverMoviesResponse discoverMoviesResponse) {
+                        return discoverMoviesResponse.results;
+                    }
+                })
+                .subscribeOn(Schedulers.io())
+                .doOnNext(new Action1<List<Movie>>() {
+                    @Override
+                    public void call(List<Movie> movies) {
+                        inMemoryCache.put(sortBy, movies);
+                    }
+                })
+                .compose(new Logger(DataSource.NETWORK));
+    }
+
+    private Observable<List<Movie>> memorySource(final SortBy sortBy) {
+        return Observable.create(new Observable.OnSubscribe<List<Movie>>() {
+            @Override
+            public void call(Subscriber<? super List<Movie>> subscriber) {
+                if (inMemoryCache.containsKey(sortBy)) {
+                    subscriber.onNext(inMemoryCache.get(sortBy));
+                }
+                subscriber.onCompleted();
+            }
+        })
+                .compose(new Logger(DataSource.MEMORY));
+    }
+
     // Simple logging to let us know what each source is returning
     private static class Logger implements Observable.Transformer<List<Movie>, List<Movie>> {
         private final DataSource source;
@@ -146,5 +149,4 @@ public class MoviesGridModel implements Model {
             return data;
         }
     }
-
 }
