@@ -43,7 +43,7 @@ public class MoviesGridView implements View {
             Timber.e(throwable, "Error while loading movies");
             Context context = MoviesGridView.this.context.get();
             if (context != null) {
-                Snackbar.make(gridView, R.string.loading_error, Snackbar.LENGTH_LONG)
+                Snackbar.make(gridView, R.string.loading_error, Snackbar.LENGTH_INDEFINITE)
                         .setAction(R.string.loading_error_action, new android.view.View.OnClickListener() {
                             @Override
                             public void onClick(@NonNull android.view.View v) {
@@ -61,7 +61,7 @@ public class MoviesGridView implements View {
 
         int imageWidth = determineImageWidth(isTablet, metrics);
 
-        this.adapter = new MoviesAdapter(context, picasso, imageWidth, imageEndpoint, imageQualifier);
+        this.adapter = new MoviesAdapter(context, picasso, imageWidth);
         this.gridView = createView(context, parent);
 
         gridView.setAdapter(adapter);

@@ -23,16 +23,12 @@ public class MoviesAdapter extends BindableAdapter<Movie> implements Action1<Lis
     private static final float ASPECT = 1.5f;
     private final Picasso picasso;
     private final int imageWidth;
-    private final String imageEndpoint;
-    private final String imageQualifier;
     private List<Movie> data = new ArrayList<>();
 
-    public MoviesAdapter(Context context, Picasso picasso, int imageWidth, String imageEndpoint, String imageQualifier) {
+    public MoviesAdapter(Context context, Picasso picasso, int imageWidth) {
         super(context);
         this.picasso = picasso;
         this.imageWidth = imageWidth;
-        this.imageEndpoint = imageEndpoint;
-        this.imageQualifier = imageQualifier;
     }
 
     @Override
