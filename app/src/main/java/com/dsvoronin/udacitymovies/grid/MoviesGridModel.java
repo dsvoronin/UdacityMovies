@@ -40,7 +40,7 @@ public class MoviesGridModel implements Model {
     }
 
     private Observable<OnItemClickEvent> validSelectionsStream() {
-        return presenter.movieSelectionStream().asObservable()
+        return presenter.movieSelectionStream()
                 .filter(new Func1<OnItemClickEvent, Boolean>() {
                     @Override
                     public Boolean call(OnItemClickEvent onItemClickEvent) {

@@ -27,20 +27,30 @@ public class MoviesGridPresenter {
      * Emits user selections of sorting options
      */
     public Observable<SortBy> sortingSelectionStream() {
-        return rxActivity.onOptionsItemSelectedStream()
-                .map(new Func1<MenuItem, SortBy>() {
-                    @Override
-                    public SortBy call(MenuItem menuItem) {
-                        switch (menuItem.getItemId()) {
-                            case R.id.sort_by_popularity:
-                                return SortBy.POPULARITY_DESC;
-                            case R.id.sort_by_rating:
-                                return SortBy.VOTE_AVERAGE_DESC;
-                            default:
-                                throw new IllegalArgumentException("Unsupported menu item: " + menuItem.getTitle());
-                        }
-                    }
-                })
+        Observable<SortBy> popularitySteam = rxActivity.onOptionsItemSelectedStream().filter(new Func1<MenuItem, Boolean>() {
+            @Override
+            public Boolean call(MenuItem menuItem) {
+                return menuItem.getItemId() == R.id.sort_by_popularity;
+            }
+        }).map(new Func1<MenuItem, SortBy>() {
+            @Override
+            public SortBy call(MenuItem menuItem) {
+                return SortBy.POPULARITY_DESC;
+            }
+        });
+        Observable<SortBy> ratingStream = rxActivity.onOptionsItemSelectedStream().filter(new Func1<MenuItem, Boolean>() {
+            @Override
+            public Boolean call(MenuItem menuItem) {
+                return menuItem.getItemId() == R.id.sort_by_rating;
+            }
+        }).map(new Func1<MenuItem, SortBy>() {
+            @Override
+            public SortBy call(MenuItem menuItem) {
+                return SortBy.VOTE_AVERAGE_DESC;
+            }
+        });
+
+        return Observable.merge(popularitySteam, ratingStream)
                 .startWith(SortBy.POPULARITY_DESC);
     }
 
