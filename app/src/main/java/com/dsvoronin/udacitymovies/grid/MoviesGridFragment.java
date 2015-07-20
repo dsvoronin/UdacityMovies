@@ -2,8 +2,6 @@ package com.dsvoronin.udacitymovies.grid;
 
 import android.app.Activity;
 import android.support.annotation.Nullable;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
 import android.util.DisplayMetrics;
 import android.view.ViewGroup;
 
@@ -21,6 +19,7 @@ import com.dsvoronin.udacitymovies.data.MovieDBService;
 import com.squareup.picasso.Picasso;
 
 import javax.inject.Inject;
+import javax.inject.Provider;
 
 import rx.functions.Action1;
 import rx.subscriptions.CompositeSubscription;
@@ -43,6 +42,7 @@ public class MoviesGridFragment extends RxFragment<MoviesGridView> {
     @Inject
     @ImageEndpoint
     String imageEndpoint;
+
     /**
      * The fragment's current callback object, which is notified of list item
      * clicks.
@@ -68,7 +68,19 @@ public class MoviesGridFragment extends RxFragment<MoviesGridView> {
 
         mCallbacks = (MasterCallbacks) activity;
 
-        model = getOrCreateModel();
+        //todo move to dagger
+        Provider<MoviesGridModel> modelProvider = new Provider<MoviesGridModel>() {
+            @Override
+            public MoviesGridModel get() {
+                return new MoviesGridModel(service);
+            }
+        };
+
+        model = MoviesModelFragment.getOrCreateModel(this.getFragmentManager(),
+                "grid_model",
+                MoviesModelFragment.getProvider(),
+                modelProvider);
+
         presenter = new MoviesGridPresenter();
         model.attachPresenter(presenter);
         presenter.attach(this);
@@ -105,22 +117,5 @@ public class MoviesGridFragment extends RxFragment<MoviesGridView> {
         // Reset the active callbacks interface to the dummy implementation.
         mCallbacks = MasterCallbacks.DUMMY_CALLBACKS;
         super.onDetach();
-    }
-
-    private MoviesGridModel getOrCreateModel() {
-        String MODEL_TAG = "movies_grid_model";
-        MoviesModelFragment modelFragment;
-        FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
-        Fragment fragment = fragmentManager.findFragmentByTag(MODEL_TAG);
-        if (fragment == null) {
-            modelFragment = new MoviesModelFragment();
-            modelFragment.setModel(new MoviesGridModel(service));
-            fragmentManager.beginTransaction()
-                    .add(modelFragment, MODEL_TAG)
-                    .commit();
-        } else {
-            modelFragment = (MoviesModelFragment) fragment;
-        }
-        return modelFragment.getModel();
     }
 }
