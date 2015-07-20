@@ -3,6 +3,7 @@ package com.dsvoronin.udacitymovies.grid;
 import android.widget.GridView;
 
 import com.dsvoronin.udacitymovies.core.Model;
+import com.dsvoronin.udacitymovies.core.PerActivity;
 import com.dsvoronin.udacitymovies.data.DataSource;
 import com.dsvoronin.udacitymovies.data.DiscoverMoviesResponse;
 import com.dsvoronin.udacitymovies.data.Movie;
@@ -13,6 +14,8 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.inject.Inject;
+
 import rx.Observable;
 import rx.Subscriber;
 import rx.android.widget.OnItemClickEvent;
@@ -22,6 +25,7 @@ import rx.functions.Func2;
 import rx.schedulers.Schedulers;
 import timber.log.Timber;
 
+@PerActivity
 public class MoviesGridModel implements Model {
 
     private final MovieDBService service;
@@ -30,6 +34,7 @@ public class MoviesGridModel implements Model {
 
     private MoviesGridPresenter presenter;
 
+    @Inject
     public MoviesGridModel(MovieDBService service) {
         this.service = service;
     }

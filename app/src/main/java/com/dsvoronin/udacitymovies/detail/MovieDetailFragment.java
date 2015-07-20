@@ -32,8 +32,9 @@ public class MovieDetailFragment extends Fragment {
      * represents.
      */
     public static final String ARG_ITEM = "item";
-    @Inject
-    Picasso picasso;
+
+    @Inject Picasso picasso;
+
     /**
      * The dummy content this fragment is presenting.
      */

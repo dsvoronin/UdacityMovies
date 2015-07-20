@@ -1,9 +1,13 @@
 package com.dsvoronin.udacitymovies;
 
+import android.util.DisplayMetrics;
+
+import com.dsvoronin.udacitymovies.core.ImageEndpoint;
+import com.dsvoronin.udacitymovies.core.ImageQualifier;
 import com.dsvoronin.udacitymovies.data.DataModule;
+import com.dsvoronin.udacitymovies.data.MovieDBService;
 import com.dsvoronin.udacitymovies.detail.MovieDetailFragment;
-import com.dsvoronin.udacitymovies.grid.MoviesGridFragment;
-import com.dsvoronin.udacitymovies.grid.MoviesModelFragment;
+import com.squareup.picasso.Picasso;
 
 import javax.inject.Singleton;
 
@@ -13,9 +17,20 @@ import dagger.Component;
 @Component(modules = {AppModule.class, UIModule.class, DataModule.class})
 public interface AppComponent {
 
-    void inject(MoviesGridFragment fragment);
-
-    void inject(MoviesModelFragment fragment);
-
     void inject(MovieDetailFragment fragment);
+
+    Picasso picasso();
+
+    DisplayMetrics metrics();
+
+    Boolean isTablet();
+
+    MovieDBService service();
+
+    @ImageQualifier
+    String imageQualifier();
+
+    @ImageEndpoint
+    String imageEndpoint();
+
 }

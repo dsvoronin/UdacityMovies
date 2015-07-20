@@ -5,15 +5,11 @@ import android.support.annotation.Nullable;
 import android.util.DisplayMetrics;
 import android.view.ViewGroup;
 
-import com.dsvoronin.udacitymovies.AppModule;
-import com.dsvoronin.udacitymovies.DaggerAppComponent;
 import com.dsvoronin.udacitymovies.MoviesApp;
-import com.dsvoronin.udacitymovies.UIModule;
 import com.dsvoronin.udacitymovies.core.ImageEndpoint;
 import com.dsvoronin.udacitymovies.core.ImageQualifier;
 import com.dsvoronin.udacitymovies.core.MasterCallbacks;
 import com.dsvoronin.udacitymovies.core.RxFragment;
-import com.dsvoronin.udacitymovies.data.DataModule;
 import com.dsvoronin.udacitymovies.data.Movie;
 import com.dsvoronin.udacitymovies.data.MovieDBService;
 import com.squareup.picasso.Picasso;
@@ -28,20 +24,21 @@ import static rx.android.app.AppObservable.bindSupportFragment;
 
 public class MoviesGridFragment extends RxFragment<MoviesGridView> {
 
-    @Inject
-    Picasso picasso;
-    @Inject
-    DisplayMetrics metrics;
-    @Inject
-    Boolean isTablet;
-    @Inject
-    MovieDBService service;
+    @Inject Picasso picasso;
+    @Inject DisplayMetrics metrics;
+    @Inject Boolean isTablet;
+    @Inject MovieDBService service;
+
     @Inject
     @ImageQualifier
     String imageQualifier;
+
     @Inject
     @ImageEndpoint
     String imageEndpoint;
+
+    @Inject
+    Provider<MoviesGridModel> modelProvider;
 
     /**
      * The fragment's current callback object, which is notified of list item
@@ -59,22 +56,12 @@ public class MoviesGridFragment extends RxFragment<MoviesGridView> {
             throw new IllegalStateException("Activity must implement fragment's callbacks.");
         }
 
-        DaggerAppComponent.builder()
-                .appModule(new AppModule((MoviesApp) getActivity().getApplication()))
-                .uIModule(new UIModule())
-                .dataModule(new DataModule())
+        DaggerMoviesGridComponent.builder()
+                .appComponent(MoviesApp.get(activity).component())
                 .build()
                 .inject(this);
 
         mCallbacks = (MasterCallbacks) activity;
-
-        //todo move to dagger
-        Provider<MoviesGridModel> modelProvider = new Provider<MoviesGridModel>() {
-            @Override
-            public MoviesGridModel get() {
-                return new MoviesGridModel(service);
-            }
-        };
 
         model = MoviesModelFragment.getOrCreateModel(this.getFragmentManager(),
                 "grid_model",
