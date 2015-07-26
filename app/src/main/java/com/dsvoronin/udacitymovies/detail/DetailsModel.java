@@ -3,7 +3,9 @@ package com.dsvoronin.udacitymovies.detail;
 import com.dsvoronin.udacitymovies.core.Model;
 import com.dsvoronin.udacitymovies.core.PerActivity;
 import com.dsvoronin.udacitymovies.data.MovieDBService;
+import com.dsvoronin.udacitymovies.data.dto.ReviewsResponse;
 import com.dsvoronin.udacitymovies.data.dto.TrailersResponse;
+import com.dsvoronin.udacitymovies.data.entities.Review;
 import com.dsvoronin.udacitymovies.data.entities.Trailer;
 import com.dsvoronin.udacitymovies.rx.FlatIterable;
 
@@ -42,13 +44,33 @@ public class DetailsModel implements Model<DetailsPresenter> {
         this.service = service;
     }
 
-    public Observable<List<Trailer>> dataStream() {
+    public Observable<List<Trailer>> trailersStream() {
         return presenter.idStream().flatMap(new Func1<Long, Observable<List<Trailer>>>() {
             @Override
             public Observable<List<Trailer>> call(Long aLong) {
                 return networkSource(aLong);
             }
         });
+    }
+
+    public Observable<List<Review>> reviewsStream() {
+        return presenter.idStream().flatMap(new Func1<Long, Observable<List<Review>>>() {
+            @Override
+            public Observable<List<Review>> call(Long id) {
+                return reviewsNetworkSource(id);
+            }
+        });
+    }
+
+    private Observable<List<Review>> reviewsNetworkSource(Long id) {
+        return service.getReviews(id)
+                .subscribeOn(Schedulers.io())
+                .map(new Func1<ReviewsResponse, List<Review>>() {
+                    @Override
+                    public List<Review> call(ReviewsResponse reviewsResponse) {
+                        return reviewsResponse.results;
+                    }
+                });
     }
 
     private Observable<List<Trailer>> networkSource(Long id) {

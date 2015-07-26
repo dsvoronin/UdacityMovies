@@ -6,8 +6,8 @@
     <data>
 
         <variable
-            name="trailer"
-            type="com.dsvoronin.udacitymovies.data.entities.Trailer"/>
+            name="review"
+            type="com.dsvoronin.udacitymovies.data.entities.Review"/>
     </data>
 
     <LinearLayout
@@ -26,15 +26,8 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:layout_weight="1"
-            android:text="@{trailer.name}"
+            android:text="@{review.author}"
             tools:text="Trailers From Hell"/>
-
-        <ImageView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:contentDescription="@null"
-            android:src="@drawable/ic_action_play_arrow"/>
 
     </LinearLayout>
 
