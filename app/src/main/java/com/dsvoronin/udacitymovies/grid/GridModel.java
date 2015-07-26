@@ -5,10 +5,12 @@ import com.dsvoronin.udacitymovies.core.ImageQualifier;
 import com.dsvoronin.udacitymovies.core.Model;
 import com.dsvoronin.udacitymovies.core.PerActivity;
 import com.dsvoronin.udacitymovies.data.DataSource;
+import com.dsvoronin.udacitymovies.data.DataSourceLogger;
 import com.dsvoronin.udacitymovies.data.MovieDBService;
 import com.dsvoronin.udacitymovies.data.dto.DiscoverMoviesResponse;
 import com.dsvoronin.udacitymovies.data.entities.Movie;
 import com.dsvoronin.udacitymovies.data.entities.SortBy;
+import com.dsvoronin.udacitymovies.rx.FlatIterable;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -39,8 +41,9 @@ public class GridModel implements Model<GridPresenter> {
     private GridPresenter presenter;
 
     private final String imageEndpoint;
-
     private final String imageQualifier;
+
+    private final FlatIterable<Movie> flatIterable = new FlatIterable<>();
 
     @Inject
     public GridModel(MovieDBService service, @ImageEndpoint String imageEndpoint, @ImageQualifier String imageQualifier) {
@@ -93,12 +96,7 @@ public class GridModel implements Model<GridPresenter> {
                         return discoverMoviesResponse.results;
                     }
                 })
-                .flatMap(new Func1<List<Movie>, Observable<Movie>>() {
-                    @Override
-                    public Observable<Movie> call(List<Movie> movies) {
-                        return Observable.from(movies);
-                    }
-                })
+                .flatMap(flatIterable)
                 .map(new Func1<Movie, Movie>() {
                     @Override
                     public Movie call(Movie movie) {
@@ -123,7 +121,7 @@ public class GridModel implements Model<GridPresenter> {
                         inMemoryCache.put(sortBy, movies);
                     }
                 })
-                .compose(new Logger(DataSource.NETWORK));
+                .compose(new DataSourceLogger<Movie>(DataSource.NETWORK));
     }
 
     private Observable<List<Movie>> memorySource(final SortBy sortBy) {
@@ -136,25 +134,6 @@ public class GridModel implements Model<GridPresenter> {
                 subscriber.onCompleted();
             }
         })
-                .compose(new Logger(DataSource.MEMORY));
-    }
-
-    // Simple logging to let us know what each source is returning
-    private static class Logger implements Observable.Transformer<List<Movie>, List<Movie>> {
-        private final DataSource source;
-
-        private Logger(DataSource source) {
-            this.source = source;
-        }
-
-        @Override
-        public Observable<List<Movie>> call(Observable<List<Movie>> data) {
-            if (data == null) {
-                Timber.d(source + " does not have any data.");
-            } else {
-                Timber.d(source + " has the data you are looking for!");
-            }
-            return data;
-        }
+                .compose(new DataSourceLogger<Movie>(DataSource.MEMORY));
     }
 }
