@@ -7,6 +7,8 @@ import com.dsvoronin.udacitymovies.core.ImageEndpoint;
 import com.dsvoronin.udacitymovies.core.ImageQualifier;
 import com.dsvoronin.udacitymovies.data.DataModule;
 import com.dsvoronin.udacitymovies.data.MovieDBService;
+import com.dsvoronin.udacitymovies.rx.RxFragment;
+import com.squareup.leakcanary.RefWatcher;
 
 import javax.inject.Singleton;
 
@@ -22,10 +24,14 @@ public interface AppComponent {
 
     MovieDBService service();
 
+    RefWatcher refWatcher();
+
     @ImageQualifier
     String imageQualifier();
 
     @ImageEndpoint
     String imageEndpoint();
+
+    void inject(RxFragment fragment);
 
 }
