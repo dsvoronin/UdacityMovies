@@ -7,12 +7,15 @@ import com.dsvoronin.udacitymovies.core.ImageEndpoint;
 import com.dsvoronin.udacitymovies.core.ImageQualifier;
 import com.dsvoronin.udacitymovies.data.DataModule;
 import com.dsvoronin.udacitymovies.data.MovieDBService;
+import com.dsvoronin.udacitymovies.data.entities.Movie;
 import com.dsvoronin.udacitymovies.rx.RxFragment;
 import com.squareup.leakcanary.RefWatcher;
 
 import javax.inject.Singleton;
 
 import dagger.Component;
+import rx.Observable;
+import rx.Observer;
 
 @Singleton
 @Component(modules = {AppModule.class, UIModule.class, DataModule.class})
@@ -25,6 +28,10 @@ public interface AppComponent {
     MovieDBService service();
 
     RefWatcher refWatcher();
+
+    Observable<Movie> movieSelection();
+
+    Observer<Movie> movieSelector();
 
     @ImageQualifier
     String imageQualifier();

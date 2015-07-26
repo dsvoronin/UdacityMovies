@@ -5,7 +5,9 @@ import java.util.List;
 import rx.Observable;
 import timber.log.Timber;
 
-// Simple logging to let us know what each source is returning
+/**
+ * Simple logging to let us know what each source is returning
+ */
 public class DataSourceLogger<T> implements Observable.Transformer<List<T>, List<T>> {
     private final DataSource source;
 

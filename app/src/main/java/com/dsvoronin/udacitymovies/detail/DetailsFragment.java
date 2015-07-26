@@ -19,6 +19,7 @@ import javax.inject.Provider;
 
 import rx.Observable;
 import rx.android.schedulers.AndroidSchedulers;
+import rx.functions.Action1;
 import rx.subscriptions.CompositeSubscription;
 
 /**
@@ -27,46 +28,36 @@ import rx.subscriptions.CompositeSubscription;
  * in two-pane mode (on tablets) or a {@link DetailsActivity}
  * on handsets.
  */
-public class DetailsFragment extends Fragment implements DetailsPresenter {
+public class DetailsFragment extends Fragment implements DetailsPresenter, Action1<Movie> {
 
-    /**
-     * The fragment argument representing the item ID that this fragment
-     * represents.
-     */
-    public static final String ARG_ITEM = "item";
+    private final CompositeSubscription subscription = new CompositeSubscription();
 
-    private Movie movie;
     private DetailsModel model;
-    private CompositeSubscription subscription = new CompositeSubscription();
+    private DetailsBinding binding;
 
     @Inject Provider<DetailsModel> modelProvider;
     @Inject Provider<DetailsModelFragment> modelFragmentProvider;
+    @Inject Observable<Movie> selectionStream;
 
     @Override
     public void onAttach(Activity activity) {
+        super.onAttach(activity);
+
         buildComponent(activity).inject(this);
 
-        movie = getArguments().getParcelable(ARG_ITEM);
-
         model = DetailsModelFragment.getOrCreateModel(getFragmentManager(),
-                "details_" + movie.id,
+                "details",
                 modelFragmentProvider,
                 modelProvider);
 
         model.attachPresenter(this);
-
-        super.onAttach(activity);
     }
 
     @Override
     public View onCreateView(final LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        final DetailsBinding binding = DetailsBinding.inflate(inflater, container, false);
+        binding = DetailsBinding.inflate(inflater, container, false);
 
-        binding.setMovie(movie);
-
-        Glide.with(this)
-                .load(movie.posterPath)
-                .into(binding.detailsPoster);
+        subscription.add(selectionStream.subscribe(this));
 
         subscription.add(model.trailersStream()
                 .observeOn(AndroidSchedulers.mainThread())
@@ -81,8 +72,8 @@ public class DetailsFragment extends Fragment implements DetailsPresenter {
 
     @Override
     public void onDestroyView() {
-        super.onDestroyView();
         subscription.clear();
+        super.onDestroyView();
     }
 
     @Override
@@ -92,15 +83,18 @@ public class DetailsFragment extends Fragment implements DetailsPresenter {
     }
 
     @Override
-    public Observable<Long> idStream() {
-        return Observable.just(movie.id);
+    public void call(Movie movie) {
+        binding.setMovie(movie);
+
+        Glide.with(this)
+                .load(movie.posterPath)
+                .into(binding.detailsPoster);
     }
 
     private DetailsComponent buildComponent(Context context) {
         return DaggerDetailsComponent.builder()
-                .detailsModule(new DetailsModule())
                 .appComponent(MoviesApp.get(context).component())
+                .detailsModule(new DetailsModule())
                 .build();
     }
-
 }

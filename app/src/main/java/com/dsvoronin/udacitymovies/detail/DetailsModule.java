@@ -13,4 +13,5 @@ public class DetailsModule {
     DetailsModelFragment provideModelFragment() {
         return new DetailsModelFragment();
     }
+
 }

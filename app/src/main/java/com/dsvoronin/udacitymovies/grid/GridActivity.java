@@ -14,11 +14,9 @@ import com.dsvoronin.udacitymovies.rx.RxActivity;
 
 import javax.inject.Inject;
 
+import rx.Observable;
+import rx.Subscription;
 import rx.functions.Action1;
-import rx.subjects.PublishSubject;
-
-import static rx.android.app.AppObservable.bindActivity;
-
 
 /**
  * An activity representing a list of Movies. This activity
@@ -35,9 +33,10 @@ import static rx.android.app.AppObservable.bindActivity;
 public class GridActivity extends RxActivity implements Action1<Movie> {
 
     @Inject DeviceClass deviceClass;
-    @Inject PublishSubject<Movie> selectionSubject;
+    @Inject Observable<Movie> movieSelection;
 
     private GridComponent component;
+    private Subscription subscription;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -48,7 +47,13 @@ public class GridActivity extends RxActivity implements Action1<Movie> {
         setContentView(R.layout.activity_movie_list);
         setTitle(R.string.app_name);
 
-        bindActivity(this, selectionSubject).subscribe(this);
+        subscription = movieSelection.subscribe(this);
+    }
+
+    @Override
+    protected void onDestroy() {
+        subscription.unsubscribe();
+        super.onDestroy();
     }
 
     public GridComponent component() {
@@ -66,18 +71,9 @@ public class GridActivity extends RxActivity implements Action1<Movie> {
         switch (deviceClass) {
             case TABLET_10:
             case TABLET_7:
-                Bundle arguments = new Bundle();
-                arguments.putParcelable(DetailsFragment.ARG_ITEM, movie);
-                DetailsFragment fragment = new DetailsFragment();
-                fragment.setArguments(arguments);
-                getSupportFragmentManager().beginTransaction()
-                        .replace(R.id.movie_detail_container, fragment)
-                        .commit();
                 break;
             case PHONE:
-                Intent detailIntent = new Intent(this, DetailsActivity.class);
-                detailIntent.putExtra(DetailsFragment.ARG_ITEM, movie);
-                startActivity(detailIntent);
+                startActivity(new Intent(this, DetailsActivity.class));
                 break;
         }
     }

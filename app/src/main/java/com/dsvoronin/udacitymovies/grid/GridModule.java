@@ -23,12 +23,6 @@ public class GridModule {
 
     @Provides
     @PerActivity
-    PublishSubject<Movie> provideSelectionSubject() {
-        return PublishSubject.create();
-    }
-
-    @Provides
-    @PerActivity
     GridModelFragment provideGridModelFragment() {
         return new GridModelFragment();
     }

@@ -5,6 +5,7 @@ import com.dsvoronin.udacitymovies.core.PerActivity;
 import com.dsvoronin.udacitymovies.data.MovieDBService;
 import com.dsvoronin.udacitymovies.data.dto.ReviewsResponse;
 import com.dsvoronin.udacitymovies.data.dto.TrailersResponse;
+import com.dsvoronin.udacitymovies.data.entities.Movie;
 import com.dsvoronin.udacitymovies.data.entities.Review;
 import com.dsvoronin.udacitymovies.data.entities.Trailer;
 import com.dsvoronin.udacitymovies.rx.FlatIterable;
@@ -22,7 +23,7 @@ import timber.log.Timber;
 public class DetailsModel implements Model<DetailsPresenter> {
 
     private final MovieDBService service;
-    private DetailsPresenter presenter;
+    private final Observable<Movie> moviesSelection;
 
     private final Func1<Trailer, Boolean> youtubeOnlyFilter = new Func1<Trailer, Boolean>() {
         @Override
@@ -39,31 +40,34 @@ public class DetailsModel implements Model<DetailsPresenter> {
 
     private final FlatIterable<Trailer> flatIterable = new FlatIterable<>();
 
+    private DetailsPresenter presenter;
+
     @Inject
-    public DetailsModel(MovieDBService service) {
+    public DetailsModel(MovieDBService service, Observable<Movie> moviesSelection) {
         this.service = service;
+        this.moviesSelection = moviesSelection;
     }
 
     public Observable<List<Trailer>> trailersStream() {
-        return presenter.idStream().flatMap(new Func1<Long, Observable<List<Trailer>>>() {
+        return moviesSelection.flatMap(new Func1<Movie, Observable<List<Trailer>>>() {
             @Override
-            public Observable<List<Trailer>> call(Long aLong) {
-                return networkSource(aLong);
+            public Observable<List<Trailer>> call(Movie movie) {
+                return networkSource(movie);
             }
         });
     }
 
     public Observable<List<Review>> reviewsStream() {
-        return presenter.idStream().flatMap(new Func1<Long, Observable<List<Review>>>() {
+        return moviesSelection.flatMap(new Func1<Movie, Observable<List<Review>>>() {
             @Override
-            public Observable<List<Review>> call(Long id) {
-                return reviewsNetworkSource(id);
+            public Observable<List<Review>> call(Movie movie) {
+                return reviewsNetworkSource(movie);
             }
         });
     }
 
-    private Observable<List<Review>> reviewsNetworkSource(Long id) {
-        return service.getReviews(id)
+    private Observable<List<Review>> reviewsNetworkSource(Movie movie) {
+        return service.getReviews(movie.id)
                 .subscribeOn(Schedulers.io())
                 .map(new Func1<ReviewsResponse, List<Review>>() {
                     @Override
@@ -73,8 +77,8 @@ public class DetailsModel implements Model<DetailsPresenter> {
                 });
     }
 
-    private Observable<List<Trailer>> networkSource(Long id) {
-        return service.getVideos(id)
+    private Observable<List<Trailer>> networkSource(Movie movie) {
+        return service.getVideos(movie.id)
                 .subscribeOn(Schedulers.io())
                 .map(new Func1<TrailersResponse, List<Trailer>>() {
                     @Override

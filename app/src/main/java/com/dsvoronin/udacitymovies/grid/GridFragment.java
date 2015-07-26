@@ -1,7 +1,6 @@
 package com.dsvoronin.udacitymovies.grid;
 
 import android.app.Activity;
-import android.content.Context;
 import android.content.res.Configuration;
 import android.databinding.DataBindingUtil;
 import android.os.Bundle;
@@ -30,18 +29,17 @@ import javax.inject.Inject;
 import javax.inject.Provider;
 
 import rx.Observable;
+import rx.Observer;
+import rx.android.schedulers.AndroidSchedulers;
 import rx.functions.Action1;
 import rx.functions.Func1;
 import rx.subjects.PublishSubject;
 import rx.subscriptions.CompositeSubscription;
 import timber.log.Timber;
 
-import static rx.android.app.AppObservable.bindSupportFragment;
-import static rx.android.view.ViewObservable.bindView;
-
 public class GridFragment extends RxFragment implements GridPresenter {
 
-    @Inject PublishSubject<Movie> selectionSubject;
+    @Inject Observer<Movie> selectionSubject;
     @Inject Provider<GridModel> modelProvider;
     @Inject Provider<GridModelFragment> modelFragmentProvider;
 
@@ -49,28 +47,27 @@ public class GridFragment extends RxFragment implements GridPresenter {
     private RecyclerView gridView;
     private PublishSubject<Boolean> reloads = PublishSubject.create();
     private GridModel model;
-    private CompositeSubscription subscription = new CompositeSubscription();
+
+    private final CompositeSubscription subscription = new CompositeSubscription();
 
     private final Action1<Throwable> moviesError = new Action1<Throwable>() {
         @Override
         public void call(Throwable throwable) {
             Timber.e(throwable, "Error while loading movies");
-            Context context = getActivity();
-            if (context != null) {
-                Snackbar.make(gridView, R.string.loading_error, Snackbar.LENGTH_INDEFINITE)
-                        .setAction(R.string.loading_error_action, new android.view.View.OnClickListener() {
-                            @Override
-                            public void onClick(@NonNull android.view.View v) {
-                                reloads.onNext(true);
-                            }
-                        })
-                        .show();
-            }
+            Snackbar.make(gridView, R.string.loading_error, Snackbar.LENGTH_INDEFINITE)
+                    .setAction(R.string.loading_error_action, new android.view.View.OnClickListener() {
+                        @Override
+                        public void onClick(@NonNull android.view.View v) {
+                            reloads.onNext(true);
+                        }
+                    })
+                    .show();
         }
     };
 
     @Override
     public void onAttach(Activity activity) {
+        super.onAttach(activity);
         ((GridActivity) activity).component().inject(this);
 
         RequestManager glide = Glide.with(this);
@@ -83,9 +80,8 @@ public class GridFragment extends RxFragment implements GridPresenter {
 
         model.attachPresenter(this);
 
-        subscription.add(bindSupportFragment(GridFragment.this, gridAdapter.getSelectionStream())
+        subscription.add(gridAdapter.getSelectionStream()
                 .subscribe(selectionSubject));
-        super.onAttach(activity);
     }
 
     @Nullable
@@ -99,7 +95,11 @@ public class GridFragment extends RxFragment implements GridPresenter {
         gridView.setHasFixedSize(true);
         gridView.setAdapter(gridAdapter);
 
-        subscribeToModel();
+        subscription.add(model.dataStream()
+                .observeOn(AndroidSchedulers.mainThread())
+                .doOnError(moviesError)
+                .onErrorResumeNext(Observable.<List<Movie>>empty())
+                .subscribe(gridAdapter));
 
         return gridBinding.getRoot();
     }
@@ -139,12 +139,4 @@ public class GridFragment extends RxFragment implements GridPresenter {
         return gridAdapter.getSelectionStream();
     }
 
-    private void subscribeToModel() {
-        if (model != null) {
-            subscription.add(bindView(gridView, model.dataStream())
-                    .doOnError(moviesError)
-                    .onErrorResumeNext(Observable.<List<Movie>>empty())
-                    .subscribe(gridAdapter));
-        }
-    }
 }
