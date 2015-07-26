@@ -23,8 +23,8 @@ import com.dsvoronin.udacitymovies.R;
 import com.dsvoronin.udacitymovies.core.MasterCallbacks;
 import com.dsvoronin.udacitymovies.core.RxActivity;
 import com.dsvoronin.udacitymovies.core.RxFragment;
-import com.dsvoronin.udacitymovies.data.entities.Movie;
 import com.dsvoronin.udacitymovies.data.MovieDBService;
+import com.dsvoronin.udacitymovies.data.entities.Movie;
 import com.dsvoronin.udacitymovies.data.entities.SortBy;
 import com.dsvoronin.udacitymovies.databinding.GridBinding;
 
@@ -43,15 +43,15 @@ import timber.log.Timber;
 import static rx.android.app.AppObservable.bindSupportFragment;
 import static rx.android.view.ViewObservable.bindView;
 
-public class MoviesGridFragment extends RxFragment implements MoviesGridPresenter {
+public class GridFragment extends RxFragment implements GridPresenter {
 
     @Inject DisplayMetrics metrics;
     @Inject Boolean isTablet;
     @Inject MovieDBService service;
 
-    @Inject Provider<MoviesGridModel> modelProvider;
+    @Inject Provider<GridModel> modelProvider;
 
-    private MoviesAdapter moviesAdapter;
+    private GridAdapter gridAdapter;
     private RecyclerView gridView;
     private PublishSubject<Boolean> reloads = PublishSubject.create();
 
@@ -60,7 +60,7 @@ public class MoviesGridFragment extends RxFragment implements MoviesGridPresente
      * clicks.
      */
     private MasterCallbacks mCallbacks = MasterCallbacks.DUMMY_CALLBACKS;
-    private MoviesGridModel model;
+    private GridModel model;
     private CompositeSubscription subscription = new CompositeSubscription();
 
     private final Action1<Throwable> moviesError = new Action1<Throwable>() {
@@ -83,24 +83,24 @@ public class MoviesGridFragment extends RxFragment implements MoviesGridPresente
 
     @Override
     public void onAttach(Activity activity) {
-        DaggerMoviesGridComponent.builder()
+        DaggerGridComponent.builder()
                 .appComponent(MoviesApp.get(activity).component())
                 .build()
                 .inject(this);
 
         RequestManager glide = Glide.with(this);
-        moviesAdapter = new MoviesAdapter(glide);
+        gridAdapter = new GridAdapter(glide);
 
         mCallbacks = (MasterCallbacks) activity;
 
-        model = MoviesModelFragment.getOrCreateModel(this.getFragmentManager(),
+        model = GridModelFragment.getOrCreateModel(this.getFragmentManager(),
                 "grid_model",
-                MoviesModelFragment.getProvider(),
+                GridModelFragment.getProvider(),
                 modelProvider);
 
         model.attachPresenter(this);
 
-        subscription.add(bindSupportFragment(MoviesGridFragment.this, moviesAdapter.getSelectionStream())
+        subscription.add(bindSupportFragment(GridFragment.this, gridAdapter.getSelectionStream())
                 .subscribe(new Action1<Movie>() {
                     @Override
                     public void call(Movie movie) {
@@ -119,7 +119,7 @@ public class MoviesGridFragment extends RxFragment implements MoviesGridPresente
         GridLayoutManager layoutManager = new GridLayoutManager(getActivity(), spans);
         gridView.setLayoutManager(layoutManager);
         gridView.setHasFixedSize(true);
-        gridView.setAdapter(moviesAdapter);
+        gridView.setAdapter(gridAdapter);
 
         subscribeToModel();
 
@@ -160,7 +160,7 @@ public class MoviesGridFragment extends RxFragment implements MoviesGridPresente
 
     @Override
     public Observable<Movie> movieSelectionStream() {
-        return moviesAdapter.getSelectionStream();
+        return gridAdapter.getSelectionStream();
     }
 
     private void subscribeToModel() {
@@ -168,7 +168,7 @@ public class MoviesGridFragment extends RxFragment implements MoviesGridPresente
             subscription.add(bindView(gridView, model.dataStream())
                     .doOnError(moviesError)
                     .onErrorResumeNext(Observable.<List<Movie>>empty())
-                    .subscribe(moviesAdapter));
+                    .subscribe(gridAdapter));
         }
     }
 }

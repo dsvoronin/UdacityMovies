@@ -19,13 +19,13 @@ import rx.Observable;
 import rx.functions.Action1;
 import rx.subjects.PublishSubject;
 
-public class MoviesAdapter extends RecyclerView.Adapter<MoviesAdapter.ViewHolder> implements Action1<List<Movie>> {
+public class GridAdapter extends RecyclerView.Adapter<GridAdapter.ViewHolder> implements Action1<List<Movie>> {
 
     private final RequestManager glide;
     private final List<Movie> movies = new ArrayList<>();
     private final PublishSubject<Movie> selectionStream = PublishSubject.create();
 
-    public MoviesAdapter(RequestManager picasso) {
+    public GridAdapter(RequestManager picasso) {
         this.glide = picasso;
         setHasStableIds(true);
     }

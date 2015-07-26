@@ -8,27 +8,27 @@ import com.dsvoronin.udacitymovies.R;
 import com.dsvoronin.udacitymovies.core.MasterCallbacks;
 import com.dsvoronin.udacitymovies.core.RxActivity;
 import com.dsvoronin.udacitymovies.data.entities.Movie;
-import com.dsvoronin.udacitymovies.detail.MovieDetailActivity;
-import com.dsvoronin.udacitymovies.detail.MovieDetailFragment;
+import com.dsvoronin.udacitymovies.detail.DetailsFragment;
+import com.dsvoronin.udacitymovies.detail.DetailsActivity;
 
 
 /**
  * An activity representing a list of Movies. This activity
  * has different presentations for handset and tablet-size devices. On
  * handsets, the activity presents a list of items, which when touched,
- * lead to a {@link MovieDetailActivity} representing
+ * lead to a {@link DetailsActivity} representing
  * item details. On tablets, the activity presents the list of items and
  * item details side-by-side using two vertical panes.
  * <p/>
  * The activity makes heavy use of fragments. The list of items is a
- * {@link MoviesGridFragment} and the item details
- * (if present) is a {@link MovieDetailFragment}.
+ * {@link GridFragment} and the item details
+ * (if present) is a {@link DetailsFragment}.
  * <p/>
  * This activity also implements the required
  * {@link MasterCallbacks} interface
  * to listen for item selections.
  */
-public class MoviesGridActivity extends RxActivity implements MasterCallbacks {
+public class GridActivity extends RxActivity implements MasterCallbacks {
 
     /**
      * Whether or not the activity is in two-pane mode, i.e. running on a tablet
@@ -65,8 +65,8 @@ public class MoviesGridActivity extends RxActivity implements MasterCallbacks {
             // adding or replacing the detail fragment using a
             // fragment transaction.
             Bundle arguments = new Bundle();
-            arguments.putParcelable(MovieDetailFragment.ARG_ITEM, movie);
-            MovieDetailFragment fragment = new MovieDetailFragment();
+            arguments.putParcelable(DetailsFragment.ARG_ITEM, movie);
+            DetailsFragment fragment = new DetailsFragment();
             fragment.setArguments(arguments);
             getSupportFragmentManager().beginTransaction()
                     .replace(R.id.movie_detail_container, fragment)
@@ -75,8 +75,8 @@ public class MoviesGridActivity extends RxActivity implements MasterCallbacks {
         } else {
             // In single-pane mode, simply start the detail activity
             // for the selected item ID.
-            Intent detailIntent = new Intent(this, MovieDetailActivity.class);
-            detailIntent.putExtra(MovieDetailFragment.ARG_ITEM, movie);
+            Intent detailIntent = new Intent(this, DetailsActivity.class);
+            detailIntent.putExtra(DetailsFragment.ARG_ITEM, movie);
             startActivity(detailIntent);
         }
     }

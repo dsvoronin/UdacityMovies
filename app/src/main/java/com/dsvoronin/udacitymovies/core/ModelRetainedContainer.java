@@ -6,7 +6,7 @@ import android.support.v4.app.FragmentManager;
 
 import javax.inject.Provider;
 
-public abstract class ModelRetainedContainer<T extends Model> extends Fragment {
+public abstract class ModelRetainedContainer<P extends Presenter, T extends Model<P>> extends Fragment {
 
     private T model;
 
@@ -25,7 +25,11 @@ public abstract class ModelRetainedContainer<T extends Model> extends Fragment {
     }
 
     @SuppressWarnings("unchecked")
-    public static <C extends ModelRetainedContainer<M>, M extends Model> M getOrCreateModel(
+    public static <
+            C extends ModelRetainedContainer<P, M>,
+            P extends Presenter,
+            M extends Model<P>>
+    M getOrCreateModel(
             FragmentManager fragmentManager,
             String tag,
             Provider<C> containerProvider,
