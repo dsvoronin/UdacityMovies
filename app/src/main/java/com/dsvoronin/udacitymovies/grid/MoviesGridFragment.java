@@ -23,9 +23,9 @@ import com.dsvoronin.udacitymovies.R;
 import com.dsvoronin.udacitymovies.core.MasterCallbacks;
 import com.dsvoronin.udacitymovies.core.RxActivity;
 import com.dsvoronin.udacitymovies.core.RxFragment;
-import com.dsvoronin.udacitymovies.data.Movie;
+import com.dsvoronin.udacitymovies.data.entities.Movie;
 import com.dsvoronin.udacitymovies.data.MovieDBService;
-import com.dsvoronin.udacitymovies.data.SortBy;
+import com.dsvoronin.udacitymovies.data.entities.SortBy;
 import com.dsvoronin.udacitymovies.databinding.GridBinding;
 
 import java.util.List;

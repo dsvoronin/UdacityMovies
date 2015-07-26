@@ -10,7 +10,7 @@ import android.widget.ImageView;
 import com.bumptech.glide.RequestManager;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.dsvoronin.udacitymovies.R;
-import com.dsvoronin.udacitymovies.data.Movie;
+import com.dsvoronin.udacitymovies.data.entities.Movie;
 
 import java.util.ArrayList;
 import java.util.List;

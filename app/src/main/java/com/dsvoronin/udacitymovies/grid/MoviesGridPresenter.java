@@ -1,7 +1,7 @@
 package com.dsvoronin.udacitymovies.grid;
 
-import com.dsvoronin.udacitymovies.data.Movie;
-import com.dsvoronin.udacitymovies.data.SortBy;
+import com.dsvoronin.udacitymovies.data.entities.Movie;
+import com.dsvoronin.udacitymovies.data.entities.SortBy;
 
 import rx.Observable;
 

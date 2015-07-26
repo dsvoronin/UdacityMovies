@@ -13,7 +13,7 @@ import com.dsvoronin.udacitymovies.DaggerAppComponent;
 import com.dsvoronin.udacitymovies.MoviesApp;
 import com.dsvoronin.udacitymovies.UIModule;
 import com.dsvoronin.udacitymovies.data.DataModule;
-import com.dsvoronin.udacitymovies.data.Movie;
+import com.dsvoronin.udacitymovies.data.entities.Movie;
 import com.dsvoronin.udacitymovies.databinding.FragmentMovieDetailBinding;
 import com.dsvoronin.udacitymovies.grid.MoviesGridActivity;
 
@@ -24,6 +24,7 @@ import com.dsvoronin.udacitymovies.grid.MoviesGridActivity;
  * on handsets.
  */
 public class MovieDetailFragment extends Fragment {
+
     /**
      * The fragment argument representing the item ID that this fragment
      * represents.
@@ -34,13 +35,6 @@ public class MovieDetailFragment extends Fragment {
      * The dummy content this fragment is presenting.
      */
     private Movie movie;
-
-    /**
-     * Mandatory empty constructor for the fragment manager to instantiate the
-     * fragment (e.g. upon screen orientation changes).
-     */
-    public MovieDetailFragment() {
-    }
 
     @Override
     public void onAttach(Activity activity) {

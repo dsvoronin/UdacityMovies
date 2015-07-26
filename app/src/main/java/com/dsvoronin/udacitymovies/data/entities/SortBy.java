@@ -1,4 +1,4 @@
-package com.dsvoronin.udacitymovies.data;
+package com.dsvoronin.udacitymovies.data.entities;
 
 public enum SortBy {
     POPULARITY_DESC("popularity.desc"), VOTE_AVERAGE_DESC("vote_average.desc");

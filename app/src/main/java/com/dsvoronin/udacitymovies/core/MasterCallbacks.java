@@ -1,6 +1,6 @@
 package com.dsvoronin.udacitymovies.core;
 
-import com.dsvoronin.udacitymovies.data.Movie;
+import com.dsvoronin.udacitymovies.data.entities.Movie;
 
 /**
  * A callback interface that all activities containing this fragment must

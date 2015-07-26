@@ -5,10 +5,10 @@ import com.dsvoronin.udacitymovies.core.ImageQualifier;
 import com.dsvoronin.udacitymovies.core.Model;
 import com.dsvoronin.udacitymovies.core.PerActivity;
 import com.dsvoronin.udacitymovies.data.DataSource;
-import com.dsvoronin.udacitymovies.data.DiscoverMoviesResponse;
-import com.dsvoronin.udacitymovies.data.Movie;
+import com.dsvoronin.udacitymovies.data.dto.DiscoverMoviesResponse;
+import com.dsvoronin.udacitymovies.data.entities.Movie;
 import com.dsvoronin.udacitymovies.data.MovieDBService;
-import com.dsvoronin.udacitymovies.data.SortBy;
+import com.dsvoronin.udacitymovies.data.entities.SortBy;
 
 import java.util.LinkedHashMap;
 import java.util.List;

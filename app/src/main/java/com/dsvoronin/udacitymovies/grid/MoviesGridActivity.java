@@ -7,7 +7,7 @@ import android.view.Menu;
 import com.dsvoronin.udacitymovies.R;
 import com.dsvoronin.udacitymovies.core.MasterCallbacks;
 import com.dsvoronin.udacitymovies.core.RxActivity;
-import com.dsvoronin.udacitymovies.data.Movie;
+import com.dsvoronin.udacitymovies.data.entities.Movie;
 import com.dsvoronin.udacitymovies.detail.MovieDetailActivity;
 import com.dsvoronin.udacitymovies.detail.MovieDetailFragment;
 
