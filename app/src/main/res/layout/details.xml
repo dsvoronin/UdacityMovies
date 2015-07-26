@@ -89,6 +89,12 @@
                 android:text="@{movie.overview}"
                 tools:text="Every child comes into the world full of promise, and none more so than Chappie: he is gifted, special, a prodigy. Like any child, Chappie will come under the influence of his surroundings—some good, some bad—and he will rely on his heart and soul to find his way in the world and become his own man. But there's one thing that makes Chappie different from any one else: he is a robot."/>
 
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:padding="@dimen/form_padding"
+                android:text="@string/trailers_title"/>
+
             <LinearLayout
                 android:id="@+id/trailers"
                 android:layout_width="match_parent"

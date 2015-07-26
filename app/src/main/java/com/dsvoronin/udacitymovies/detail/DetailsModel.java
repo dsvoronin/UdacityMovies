@@ -5,7 +5,7 @@ import com.dsvoronin.udacitymovies.core.PerActivity;
 import com.dsvoronin.udacitymovies.data.MovieDBService;
 import com.dsvoronin.udacitymovies.data.dto.TrailersResponse;
 import com.dsvoronin.udacitymovies.data.entities.Trailer;
-import com.dsvoronin.udacitymovies.rx.FlatList;
+import com.dsvoronin.udacitymovies.rx.FlatIterable;
 
 import java.util.List;
 
@@ -14,6 +14,7 @@ import javax.inject.Inject;
 import rx.Observable;
 import rx.functions.Func1;
 import rx.schedulers.Schedulers;
+import timber.log.Timber;
 
 @PerActivity
 public class DetailsModel implements Model<DetailsPresenter> {
@@ -24,11 +25,17 @@ public class DetailsModel implements Model<DetailsPresenter> {
     private final Func1<Trailer, Boolean> youtubeOnlyFilter = new Func1<Trailer, Boolean>() {
         @Override
         public Boolean call(Trailer trailer) {
-            return trailer.getSite().equals("YouTube");
+            String site = trailer.site;
+            if (site.equals("YouTube")) {
+                return true;
+            } else {
+                Timber.w("Unsupported video site detected: " + site);
+                return false;
+            }
         }
     };
 
-    private final FlatList<Trailer> trailerFlatList = new FlatList<>();
+    private final FlatIterable<Trailer> flatIterable = new FlatIterable<>();
 
     @Inject
     public DetailsModel(MovieDBService service) {
@@ -53,7 +60,7 @@ public class DetailsModel implements Model<DetailsPresenter> {
                         return trailersResponse.getResults();
                     }
                 })
-                .flatMap(trailerFlatList)
+                .flatMap(flatIterable)
                 .filter(youtubeOnlyFilter)
                 .toList();
     }

@@ -1,7 +1,12 @@
 package com.dsvoronin.udacitymovies.detail;
 
 import android.app.Activity;
+import android.content.ActivityNotFoundException;
+import android.content.Context;
+import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -22,7 +27,9 @@ import javax.inject.Inject;
 import javax.inject.Provider;
 
 import rx.Observable;
+import rx.android.schedulers.AndroidSchedulers;
 import rx.functions.Action1;
+import rx.subscriptions.CompositeSubscription;
 
 /**
  * A fragment representing a single Movie detail screen.
@@ -38,11 +45,9 @@ public class DetailsFragment extends Fragment implements DetailsPresenter {
      */
     public static final String ARG_ITEM = "item";
 
-    /**
-     * The dummy content this fragment is presenting.
-     */
     private Movie movie;
     private DetailsModel model;
+    private CompositeSubscription subscription = new CompositeSubscription();
 
     @Inject Provider<DetailsModel> modelProvider;
 
@@ -71,29 +76,24 @@ public class DetailsFragment extends Fragment implements DetailsPresenter {
         final DetailsBinding binding = DetailsBinding.inflate(inflater, container, false);
 
         binding.setMovie(movie);
-        Glide.with(this).load(movie.posterPath)
+
+        Glide.with(this)
+                .load(movie.posterPath)
                 .into(binding.detailsPoster);
 
         final LinearLayout trailersLayout = binding.trailers;
 
-        model.dataStream()
-                .subscribe(new Action1<List<Trailer>>() {
-                    @Override
-                    public void call(List<Trailer> trailers) {
-                        trailersLayout.removeAllViews();
-                        for (Trailer trailer : trailers) {
-                            trailersLayout.addView(buildTrailerRow(inflater, trailersLayout, trailer));
-                        }
-                    }
-                });
+        subscription.add(model.dataStream()
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new OnTrailersLoaded(inflater, trailersLayout)));
 
         return binding.getRoot();
     }
 
-    private View buildTrailerRow(LayoutInflater inflater, ViewGroup parent, Trailer trailer) {
-        TrailerRowBinding binding = TrailerRowBinding.inflate(inflater, parent, false);
-        binding.setTrailer(trailer);
-        return binding.getRoot();
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        subscription.clear();
     }
 
     @Override
@@ -105,5 +105,45 @@ public class DetailsFragment extends Fragment implements DetailsPresenter {
     @Override
     public Observable<Long> idStream() {
         return Observable.just(movie.id);
+    }
+
+    private static class OnTrailersLoaded implements Action1<List<Trailer>> {
+        private final LayoutInflater inflater;
+        private final ViewGroup parent;
+
+        private OnTrailersLoaded(LayoutInflater inflater, ViewGroup parent) {
+            this.inflater = inflater;
+            this.parent = parent;
+        }
+
+        @Override
+        public void call(List<Trailer> trailers) {
+            parent.removeAllViews();
+            for (Trailer trailer : trailers) {
+                buildTrailerRow(inflater, parent, trailer);
+            }
+        }
+
+        private void buildTrailerRow(LayoutInflater inflater, ViewGroup parent, final Trailer trailer) {
+            TrailerRowBinding binding = TrailerRowBinding.inflate(inflater, parent, true);
+            binding.setTrailer(trailer);
+            binding.getRoot().setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(@NonNull View v) {
+                    startYoutube(trailer);
+                }
+            });
+        }
+
+        private void startYoutube(Trailer trailer) {
+            Context context = parent.getContext();
+            try {
+                Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse("vnd.youtube://" + trailer.key));
+                context.startActivity(intent);
+            } catch (ActivityNotFoundException e) {
+                Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse("http://www.youtube.com/watch?v=" + trailer.key));
+                context.startActivity(intent);
+            }
+        }
     }
 }
