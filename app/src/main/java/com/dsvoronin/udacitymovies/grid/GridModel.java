@@ -1,5 +1,6 @@
 package com.dsvoronin.udacitymovies.grid;
 
+import com.dsvoronin.udacitymovies.core.DeviceClass;
 import com.dsvoronin.udacitymovies.core.ImageEndpoint;
 import com.dsvoronin.udacitymovies.core.ImageQualifier;
 import com.dsvoronin.udacitymovies.core.Model;
@@ -17,6 +18,7 @@ import java.text.SimpleDateFormat;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 import javax.inject.Inject;
 
@@ -26,6 +28,7 @@ import rx.functions.Action1;
 import rx.functions.Func1;
 import rx.functions.Func2;
 import rx.schedulers.Schedulers;
+import rx.subscriptions.CompositeSubscription;
 import timber.log.Timber;
 
 @PerActivity
@@ -42,21 +45,36 @@ public class GridModel implements Model<GridPresenter> {
 
     private final String imageEndpoint;
     private final String imageQualifier;
+    private final Observable<Movie> movieSelection;
+    private final DeviceClass deviceClass;
 
     private final FlatIterable<Movie> flatIterable = new FlatIterable<>();
+    private final CompositeSubscription subscription = new CompositeSubscription();
 
     @Inject
-    public GridModel(MovieDBService service, @ImageEndpoint String imageEndpoint, @ImageQualifier String imageQualifier) {
+    public GridModel(MovieDBService service, @ImageEndpoint String imageEndpoint, @ImageQualifier String imageQualifier, Observable<Movie> movieSelection, DeviceClass deviceClass) {
         this.service = service;
         this.imageEndpoint = imageEndpoint;
         this.imageQualifier = imageQualifier;
+        this.movieSelection = movieSelection;
+        this.deviceClass = deviceClass;
     }
 
-    public void attachPresenter(GridPresenter presenter) {
+    public void attachPresenter(final GridPresenter presenter) {
         this.presenter = presenter;
+
+        subscription.add(movieSelection
+                .skip(150, TimeUnit.MILLISECONDS) //todo something better :P
+                .subscribe(new Action1<Movie>() {
+                    @Override
+                    public void call(Movie movie) {
+                        if (deviceClass == DeviceClass.PHONE) presenter.displayDetailActivity();
+                    }
+                }));
     }
 
     public void detachPresenter() {
+        subscription.clear();
         this.presenter = null;
     }
 

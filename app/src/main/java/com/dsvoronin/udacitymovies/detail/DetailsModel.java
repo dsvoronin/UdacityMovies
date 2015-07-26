@@ -57,6 +57,10 @@ public class DetailsModel implements Model<DetailsPresenter> {
         });
     }
 
+    public Observable<Movie> dataStream() {
+        return moviesSelection;
+    }
+
     public Observable<List<Review>> reviewsStream() {
         return moviesSelection.flatMap(new Func1<Movie, Observable<List<Review>>>() {
             @Override

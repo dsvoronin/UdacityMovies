@@ -17,7 +17,6 @@ import com.dsvoronin.udacitymovies.grid.GridActivity;
 import javax.inject.Inject;
 import javax.inject.Provider;
 
-import rx.Observable;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.functions.Action1;
 import rx.subscriptions.CompositeSubscription;
@@ -37,7 +36,6 @@ public class DetailsFragment extends Fragment implements DetailsPresenter, Actio
 
     @Inject Provider<DetailsModel> modelProvider;
     @Inject Provider<DetailsModelFragment> modelFragmentProvider;
-    @Inject Observable<Movie> selectionStream;
 
     @Override
     public void onAttach(Activity activity) {
@@ -57,7 +55,7 @@ public class DetailsFragment extends Fragment implements DetailsPresenter, Actio
     public View onCreateView(final LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         binding = DetailsBinding.inflate(inflater, container, false);
 
-        subscription.add(selectionStream.subscribe(this));
+        subscription.add(model.dataStream().subscribe(this));
 
         subscription.add(model.trailersStream()
                 .observeOn(AndroidSchedulers.mainThread())

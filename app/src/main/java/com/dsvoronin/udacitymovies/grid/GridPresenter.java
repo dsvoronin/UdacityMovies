@@ -23,4 +23,6 @@ public interface GridPresenter extends Presenter {
      */
     Observable<Movie> movieSelectionStream();
 
+    void displayDetailActivity();
+
 }

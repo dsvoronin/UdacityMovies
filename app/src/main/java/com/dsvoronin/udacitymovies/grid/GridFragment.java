@@ -1,6 +1,8 @@
 package com.dsvoronin.udacitymovies.grid;
 
 import android.app.Activity;
+import android.content.Context;
+import android.content.Intent;
 import android.content.res.Configuration;
 import android.databinding.DataBindingUtil;
 import android.os.Bundle;
@@ -20,6 +22,7 @@ import com.dsvoronin.udacitymovies.R;
 import com.dsvoronin.udacitymovies.data.entities.Movie;
 import com.dsvoronin.udacitymovies.data.entities.SortBy;
 import com.dsvoronin.udacitymovies.databinding.GridBinding;
+import com.dsvoronin.udacitymovies.detail.DetailsActivity;
 import com.dsvoronin.udacitymovies.rx.RxActivity;
 import com.dsvoronin.udacitymovies.rx.RxFragment;
 
@@ -137,6 +140,12 @@ public class GridFragment extends RxFragment implements GridPresenter {
     @Override
     public Observable<Movie> movieSelectionStream() {
         return gridAdapter.getSelectionStream();
+    }
+
+    @Override
+    public void displayDetailActivity() {
+        Context context = getActivity();
+        context.startActivity(new Intent(context, DetailsActivity.class));
     }
 
 }
