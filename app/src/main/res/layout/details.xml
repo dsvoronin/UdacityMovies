@@ -44,10 +44,12 @@
 
             </LinearLayout>
 
+
             <ImageView
                 android:id="@+id/details_poster"
                 android:layout_width="match_parent"
                 android:layout_height="@dimen/poster_height"
+                android:layout_marginTop="@dimen/form_padding"
                 tools:src="@color/accent"/>
 
             <TextView

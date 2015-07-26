@@ -16,7 +16,10 @@
                   android:background="?selectableItemBackground"
                   android:clickable="true"
                   android:orientation="horizontal"
-                  android:padding="@dimen/form_padding">
+                  android:paddingBottom="4dp"
+                  android:paddingLeft="@dimen/form_padding"
+                  android:paddingRight="@dimen/form_padding"
+                  android:paddingTop="4dp">
 
         <TextView
             android:layout_width="0dp"
