@@ -12,9 +12,11 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
+import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.dsvoronin.udacitymovies.MoviesApp;
+import com.dsvoronin.udacitymovies.R;
 import com.dsvoronin.udacitymovies.data.entities.Movie;
 import com.dsvoronin.udacitymovies.data.entities.Trailer;
 import com.dsvoronin.udacitymovies.databinding.DetailsBinding;
@@ -27,9 +29,10 @@ import javax.inject.Inject;
 import javax.inject.Provider;
 
 import rx.Observable;
+import rx.Observer;
 import rx.android.schedulers.AndroidSchedulers;
-import rx.functions.Action1;
 import rx.subscriptions.CompositeSubscription;
+import timber.log.Timber;
 
 /**
  * A fragment representing a single Movie detail screen.
@@ -107,21 +110,15 @@ public class DetailsFragment extends Fragment implements DetailsPresenter {
         return Observable.just(movie.id);
     }
 
-    private static class OnTrailersLoaded implements Action1<List<Trailer>> {
+    private static class OnTrailersLoaded implements Observer<List<Trailer>> {
         private final LayoutInflater inflater;
         private final ViewGroup parent;
+        private final Context context;
 
         private OnTrailersLoaded(LayoutInflater inflater, ViewGroup parent) {
             this.inflater = inflater;
             this.parent = parent;
-        }
-
-        @Override
-        public void call(List<Trailer> trailers) {
-            parent.removeAllViews();
-            for (Trailer trailer : trailers) {
-                buildTrailerRow(inflater, parent, trailer);
-            }
+            this.context = parent.getContext();
         }
 
         private void buildTrailerRow(LayoutInflater inflater, ViewGroup parent, final Trailer trailer) {
@@ -136,13 +133,31 @@ public class DetailsFragment extends Fragment implements DetailsPresenter {
         }
 
         private void startYoutube(Trailer trailer) {
-            Context context = parent.getContext();
             try {
                 Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse("vnd.youtube://" + trailer.key));
                 context.startActivity(intent);
             } catch (ActivityNotFoundException e) {
                 Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse("http://www.youtube.com/watch?v=" + trailer.key));
                 context.startActivity(intent);
+            }
+        }
+
+        @Override
+        public void onCompleted() {
+
+        }
+
+        @Override
+        public void onError(Throwable e) {
+            Timber.e(e, "Can't load trailers");
+            Toast.makeText(context, R.string.trailers_load_fail, Toast.LENGTH_SHORT).show();
+        }
+
+        @Override
+        public void onNext(List<Trailer> trailers) {
+            parent.removeAllViews();
+            for (Trailer trailer : trailers) {
+                buildTrailerRow(inflater, parent, trailer);
             }
         }
     }

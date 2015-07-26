@@ -8,4 +8,6 @@
     <string name="sort_by_popularity">Sort by popularity</string>
     <string name="sort_by_rating">Sort by rating</string>
     <string name="trailers_title">Trailers</string>
+
+    <string name="trailers_load_fail">Can't load trailers</string>
 </resources>
