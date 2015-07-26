@@ -76,7 +76,7 @@ public class DetailsFragment extends Fragment implements DetailsPresenter {
 
         subscription.add(model.reviewsStream()
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new ReviewsObserver(inflater, binding.reviews)));
+                .subscribe(new ReviewsObserver(inflater, binding.reviews, binding.reviewsCard)));
 
         return binding.getRoot();
     }
