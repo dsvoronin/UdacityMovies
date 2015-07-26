@@ -1,11 +1,12 @@
 package com.dsvoronin.udacitymovies.grid;
 
-import com.dsvoronin.udacitymovies.data.Movie;
-import com.dsvoronin.udacitymovies.data.SortBy;
+import com.dsvoronin.udacitymovies.core.Presenter;
+import com.dsvoronin.udacitymovies.data.entities.Movie;
+import com.dsvoronin.udacitymovies.data.entities.SortBy;
 
 import rx.Observable;
 
-public interface MoviesGridPresenter {
+public interface GridPresenter extends Presenter {
 
     /**
      * Emits user selections of sorting options

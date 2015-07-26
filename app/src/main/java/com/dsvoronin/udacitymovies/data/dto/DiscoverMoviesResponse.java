@@ -1,4 +1,6 @@
-package com.dsvoronin.udacitymovies.data;
+package com.dsvoronin.udacitymovies.data.dto;
+
+import com.dsvoronin.udacitymovies.data.entities.Movie;
 
 import java.util.List;
 

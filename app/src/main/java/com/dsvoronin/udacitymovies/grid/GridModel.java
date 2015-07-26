@@ -5,10 +5,10 @@ import com.dsvoronin.udacitymovies.core.ImageQualifier;
 import com.dsvoronin.udacitymovies.core.Model;
 import com.dsvoronin.udacitymovies.core.PerActivity;
 import com.dsvoronin.udacitymovies.data.DataSource;
-import com.dsvoronin.udacitymovies.data.DiscoverMoviesResponse;
-import com.dsvoronin.udacitymovies.data.Movie;
 import com.dsvoronin.udacitymovies.data.MovieDBService;
-import com.dsvoronin.udacitymovies.data.SortBy;
+import com.dsvoronin.udacitymovies.data.dto.DiscoverMoviesResponse;
+import com.dsvoronin.udacitymovies.data.entities.Movie;
+import com.dsvoronin.udacitymovies.data.entities.SortBy;
 
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -25,26 +25,26 @@ import rx.schedulers.Schedulers;
 import timber.log.Timber;
 
 @PerActivity
-public class MoviesGridModel implements Model {
+public class GridModel implements Model<GridPresenter> {
 
     private final MovieDBService service;
 
     private final Map<SortBy, List<Movie>> inMemoryCache = new LinkedHashMap<>();
 
-    private MoviesGridPresenter presenter;
+    private GridPresenter presenter;
 
     private final String imageEndpoint;
 
     private final String imageQualifier;
 
     @Inject
-    public MoviesGridModel(MovieDBService service, @ImageEndpoint String imageEndpoint, @ImageQualifier String imageQualifier) {
+    public GridModel(MovieDBService service, @ImageEndpoint String imageEndpoint, @ImageQualifier String imageQualifier) {
         this.service = service;
         this.imageEndpoint = imageEndpoint;
         this.imageQualifier = imageQualifier;
     }
 
-    public void attachPresenter(MoviesGridPresenter presenter) {
+    public void attachPresenter(GridPresenter presenter) {
         this.presenter = presenter;
     }
 

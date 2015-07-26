@@ -7,18 +7,18 @@ import android.support.v7.app.AppCompatActivity;
 import android.view.MenuItem;
 
 import com.dsvoronin.udacitymovies.R;
-import com.dsvoronin.udacitymovies.grid.MoviesGridActivity;
+import com.dsvoronin.udacitymovies.grid.GridActivity;
 
 /**
  * An activity representing a single Movie detail screen. This
  * activity is only used on handset devices. On tablet-size devices,
  * item details are presented side-by-side with a list of items
- * in a {@link MoviesGridActivity}.
+ * in a {@link GridActivity}.
  * <p/>
  * This activity is mostly just a 'shell' activity containing nothing
- * more than a {@link MovieDetailFragment}.
+ * more than a {@link DetailsFragment}.
  */
-public class MovieDetailActivity extends AppCompatActivity {
+public class DetailsActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -41,9 +41,9 @@ public class MovieDetailActivity extends AppCompatActivity {
             // Create the detail fragment and add it to the activity
             // using a fragment transaction.
             Bundle arguments = new Bundle();
-            arguments.putParcelable(MovieDetailFragment.ARG_ITEM,
-                    getIntent().getParcelableExtra(MovieDetailFragment.ARG_ITEM));
-            MovieDetailFragment fragment = new MovieDetailFragment();
+            arguments.putParcelable(DetailsFragment.ARG_ITEM,
+                    getIntent().getParcelableExtra(DetailsFragment.ARG_ITEM));
+            DetailsFragment fragment = new DetailsFragment();
             fragment.setArguments(arguments);
             getSupportFragmentManager().beginTransaction()
                     .add(R.id.movie_detail_container, fragment)
@@ -62,7 +62,7 @@ public class MovieDetailActivity extends AppCompatActivity {
             //
             // http://developer.android.com/design/patterns/navigation.html#up-vs-back
             //
-            NavUtils.navigateUpTo(this, new Intent(this, MoviesGridActivity.class));
+            NavUtils.navigateUpTo(this, new Intent(this, GridActivity.class));
             return true;
         }
         return super.onOptionsItemSelected(item);

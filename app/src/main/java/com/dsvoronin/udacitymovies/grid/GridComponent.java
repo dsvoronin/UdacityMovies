@@ -7,8 +7,8 @@ import dagger.Component;
 
 @PerActivity
 @Component(dependencies = {AppComponent.class})
-public interface MoviesGridComponent extends AppComponent {
+public interface GridComponent extends AppComponent {
 
-    void inject(MoviesGridFragment fragment);
+    void inject(GridFragment fragment);
 
 }

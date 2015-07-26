@@ -1,4 +1,4 @@
-package com.dsvoronin.udacitymovies.data;
+package com.dsvoronin.udacitymovies.data.entities;
 
 import android.os.Parcel;
 import android.os.Parcelable;
