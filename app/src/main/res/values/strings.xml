@@ -12,4 +12,7 @@
     <string name="details_description">Description</string>
 
     <string name="trailers_load_fail">Can\'t load trailers</string>
+
+    <string name="reviews_title">Reviews</string>
+    <string name="reviews_load_fail">Can\'t load reviews</string>
 </resources>

@@ -1,6 +1,7 @@
 package com.dsvoronin.udacitymovies.data;
 
 import com.dsvoronin.udacitymovies.data.dto.DiscoverMoviesResponse;
+import com.dsvoronin.udacitymovies.data.dto.ReviewsResponse;
 import com.dsvoronin.udacitymovies.data.dto.TrailersResponse;
 import com.dsvoronin.udacitymovies.data.entities.SortBy;
 
@@ -16,4 +17,7 @@ public interface MovieDBService {
 
     @GET("/movie/{id}/videos")
     Observable<TrailersResponse> getVideos(@Path("id") long id);
+
+    @GET("/movie/{id}/reviews")
+    Observable<ReviewsResponse> getReviews(@Path("id") long id);
 }
