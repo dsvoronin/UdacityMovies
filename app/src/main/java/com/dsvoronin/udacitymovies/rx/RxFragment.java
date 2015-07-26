@@ -1,4 +1,4 @@
-package com.dsvoronin.udacitymovies.core;
+package com.dsvoronin.udacitymovies.rx;
 
 import android.app.Activity;
 import android.support.v4.app.Fragment;

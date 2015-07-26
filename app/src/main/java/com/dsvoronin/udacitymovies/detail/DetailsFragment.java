@@ -1,6 +1,7 @@
 package com.dsvoronin.udacitymovies.detail;
 
 import android.app.Activity;
+import android.content.Context;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
@@ -39,20 +40,17 @@ public class DetailsFragment extends Fragment implements DetailsPresenter {
     private CompositeSubscription subscription = new CompositeSubscription();
 
     @Inject Provider<DetailsModel> modelProvider;
+    @Inject Provider<DetailsModelFragment> modelFragmentProvider;
 
     @Override
     public void onAttach(Activity activity) {
-
-        DaggerDetailsComponent.builder()
-                .appComponent(MoviesApp.get(activity).component())
-                .build()
-                .inject(this);
+        buildComponent(activity).inject(this);
 
         movie = getArguments().getParcelable(ARG_ITEM);
 
         model = DetailsModelFragment.getOrCreateModel(getFragmentManager(),
                 "details_" + movie.id,
-                DetailsModelFragment.getProvider(),
+                modelFragmentProvider,
                 modelProvider);
 
         model.attachPresenter(this);
@@ -96,6 +94,13 @@ public class DetailsFragment extends Fragment implements DetailsPresenter {
     @Override
     public Observable<Long> idStream() {
         return Observable.just(movie.id);
+    }
+
+    private DetailsComponent buildComponent(Context context) {
+        return DaggerDetailsComponent.builder()
+                .detailsModule(new DetailsModule())
+                .appComponent(MoviesApp.get(context).component())
+                .build();
     }
 
 }

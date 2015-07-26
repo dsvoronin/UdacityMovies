@@ -1,4 +1,4 @@
-package com.dsvoronin.udacitymovies.core;
+package com.dsvoronin.udacitymovies.rx;
 
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;

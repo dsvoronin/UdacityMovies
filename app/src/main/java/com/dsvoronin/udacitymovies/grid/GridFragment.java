@@ -10,7 +10,6 @@ import android.support.annotation.Nullable;
 import android.support.design.widget.Snackbar;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.DisplayMetrics;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
@@ -18,15 +17,12 @@ import android.view.ViewGroup;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.RequestManager;
-import com.dsvoronin.udacitymovies.MoviesApp;
 import com.dsvoronin.udacitymovies.R;
-import com.dsvoronin.udacitymovies.core.MasterCallbacks;
-import com.dsvoronin.udacitymovies.core.RxActivity;
-import com.dsvoronin.udacitymovies.core.RxFragment;
-import com.dsvoronin.udacitymovies.data.MovieDBService;
 import com.dsvoronin.udacitymovies.data.entities.Movie;
 import com.dsvoronin.udacitymovies.data.entities.SortBy;
 import com.dsvoronin.udacitymovies.databinding.GridBinding;
+import com.dsvoronin.udacitymovies.rx.RxActivity;
+import com.dsvoronin.udacitymovies.rx.RxFragment;
 
 import java.util.List;
 
@@ -45,21 +41,13 @@ import static rx.android.view.ViewObservable.bindView;
 
 public class GridFragment extends RxFragment implements GridPresenter {
 
-    @Inject DisplayMetrics metrics;
-    @Inject Boolean isTablet;
-    @Inject MovieDBService service;
-
+    @Inject PublishSubject<Movie> selectionSubject;
     @Inject Provider<GridModel> modelProvider;
+    @Inject Provider<GridModelFragment> modelFragmentProvider;
 
     private GridAdapter gridAdapter;
     private RecyclerView gridView;
     private PublishSubject<Boolean> reloads = PublishSubject.create();
-
-    /**
-     * The fragment's current callback object, which is notified of list item
-     * clicks.
-     */
-    private MasterCallbacks mCallbacks = MasterCallbacks.DUMMY_CALLBACKS;
     private GridModel model;
     private CompositeSubscription subscription = new CompositeSubscription();
 
@@ -83,30 +71,20 @@ public class GridFragment extends RxFragment implements GridPresenter {
 
     @Override
     public void onAttach(Activity activity) {
-        DaggerGridComponent.builder()
-                .appComponent(MoviesApp.get(activity).component())
-                .build()
-                .inject(this);
+        ((GridActivity) activity).component().inject(this);
 
         RequestManager glide = Glide.with(this);
         gridAdapter = new GridAdapter(glide);
 
-        mCallbacks = (MasterCallbacks) activity;
-
         model = GridModelFragment.getOrCreateModel(this.getFragmentManager(),
                 "grid_model",
-                GridModelFragment.getProvider(),
+                modelFragmentProvider,
                 modelProvider);
 
         model.attachPresenter(this);
 
         subscription.add(bindSupportFragment(GridFragment.this, gridAdapter.getSelectionStream())
-                .subscribe(new Action1<Movie>() {
-                    @Override
-                    public void call(Movie movie) {
-                        mCallbacks.onItemSelected(movie);
-                    }
-                }));
+                .subscribe(selectionSubject));
         super.onAttach(activity);
     }
 
@@ -131,8 +109,6 @@ public class GridFragment extends RxFragment implements GridPresenter {
         subscription.clear();
         model.detachPresenter();
         model = null;
-        // Reset the active callbacks interface to the dummy implementation.
-        mCallbacks = MasterCallbacks.DUMMY_CALLBACKS;
         super.onDetach();
     }
 

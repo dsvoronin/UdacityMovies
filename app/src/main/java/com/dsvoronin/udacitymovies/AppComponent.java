@@ -2,6 +2,7 @@ package com.dsvoronin.udacitymovies;
 
 import android.util.DisplayMetrics;
 
+import com.dsvoronin.udacitymovies.core.DeviceClass;
 import com.dsvoronin.udacitymovies.core.ImageEndpoint;
 import com.dsvoronin.udacitymovies.core.ImageQualifier;
 import com.dsvoronin.udacitymovies.data.DataModule;
@@ -17,7 +18,7 @@ public interface AppComponent {
 
     DisplayMetrics metrics();
 
-    Boolean isTablet();
+    DeviceClass deviceClass();
 
     MovieDBService service();
 
