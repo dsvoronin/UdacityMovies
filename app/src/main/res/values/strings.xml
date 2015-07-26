@@ -9,5 +9,7 @@
     <string name="sort_by_rating">Sort by rating</string>
     <string name="trailers_title">Trailers</string>
 
-    <string name="trailers_load_fail">Can't load trailers</string>
+    <string name="details_description">Description</string>
+
+    <string name="trailers_load_fail">Can\'t load trailers</string>
 </resources>

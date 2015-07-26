@@ -18,88 +18,108 @@
             android:layout_height="wrap_content"
             android:orientation="vertical">
 
-            <TextView
-                android:id="@+id/details_title"
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:background="@color/accent"
-                android:padding="@dimen/form_padding"
-                android:text="@{movie.title}"
-                android:textSize="32sp"
-                tools:text="Chappie"/>
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
                 android:orientation="horizontal"
                 android:padding="@dimen/form_padding">
 
-                <ImageView
-                    android:id="@+id/details_poster"
-                    android:layout_width="0dp"
-                    android:layout_height="200dp"
-                    android:layout_marginRight="@dimen/form_padding"
-                    android:layout_weight="1"
-                    tools:src="@color/accent"/>
-
-                <LinearLayout
+                <TextView
+                    android:id="@+id/details_title"
+                    style="@style/FontDisplay1"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:orientation="vertical">
+                    android:text="@{movie.title}"
+                    tools:text="Chappie"/>
 
-                    <TextView
-                        android:id="@+id/details_release_year"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginBottom="@dimen/form_padding"
-                        android:gravity="end"
-                        android:text="@{movie.releaseDate}"
-                        android:textSize="20sp"
-                        tools:text="2015"/>
-
-                    <!--<TextView-->
-                    <!--android:id="@+id/details_duration"-->
-                    <!--android:layout_width="match_parent"-->
-                    <!--android:layout_height="wrap_content"-->
-                    <!--android:layout_marginBottom="@dimen/form_padding"-->
-                    <!--android:gravity="end"-->
-                    <!--android:textSize="20sp"-->
-                    <!--tools:text="120 min" />-->
-
-                    <TextView
-                        android:id="@+id/details_rating"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:gravity="end"
-                        android:text="@{movie.voteAverage}"
-                        android:textSize="20sp"
-
-                        tools:text="8.1 / 10"/>
-
-                </LinearLayout>
+                <TextView
+                    android:id="@+id/details_release_year"
+                    style="@style/FontDisplay1"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@{movie.releaseDate}"
+                    tools:text="2015"/>
 
             </LinearLayout>
 
-            <TextView
-                android:id="@+id/details_description"
+            <ImageView
+                android:id="@+id/details_poster"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:padding="@dimen/form_padding"
-                android:text="@{movie.overview}"
-                tools:text="Every child comes into the world full of promise, and none more so than Chappie: he is gifted, special, a prodigy. Like any child, Chappie will come under the influence of his surroundings—some good, some bad—and he will rely on his heart and soul to find his way in the world and become his own man. But there's one thing that makes Chappie different from any one else: he is a robot."/>
+                android:layout_height="@dimen/poster_height"
+                tools:src="@color/accent"/>
 
             <TextView
-                android:layout_width="match_parent"
+                android:id="@+id/details_rating"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:padding="@dimen/form_padding"
-                android:text="@string/trailers_title"/>
+                android:layout_gravity="center"
+                android:layout_margin="@dimen/form_padding"
+                android:drawableLeft="@drawable/star_yellow"
+                android:drawablePadding="4dp"
+                android:text='@{movie.voteAverage + " / 10"}'
+                android:textSize="26sp"
+                tools:text="8.1 / 10"/>
 
-            <LinearLayout
-                android:id="@+id/trailers"
+            <android.support.v7.widget.CardView
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"/>
+                android:layout_height="wrap_content">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical">
+
+                    <TextView
+                        style="@style/FontTitle"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:padding="@dimen/form_padding"
+                        android:text="@string/details_description"/>
+
+                    <TextView
+                        android:id="@+id/details_description"
+                        style="@style/FontBody"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:padding="@dimen/form_padding"
+                        android:text="@{movie.overview}"
+                        tools:text="Every child comes into the world full of promise, and none more so than Chappie: he is gifted, special, a prodigy. Like any child, Chappie will come under the influence of his surroundings—some good, some bad—and he will rely on his heart and soul to find his way in the world and become his own man. But there's one thing that makes Chappie different from any one else: he is a robot."/>
+
+                </LinearLayout>
+
+            </android.support.v7.widget.CardView>
+
+            <Space
+                android:layout_width="match_parent"
+                android:layout_height="8dp"/>
+
+            <android.support.v7.widget.CardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical">
+
+                    <TextView
+                        style="@style/FontTitle"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:padding="@dimen/form_padding"
+                        android:text="@string/trailers_title"/>
+
+                    <LinearLayout
+                        android:id="@+id/trailers"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"/>
+
+                </LinearLayout>
+
+            </android.support.v7.widget.CardView>
 
         </LinearLayout>
 

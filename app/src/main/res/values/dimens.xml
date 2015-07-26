@@ -1,4 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <dimen name="form_padding">16dp</dimen>
+    <dimen name="poster_width">185dp</dimen>
+    <dimen name="poster_height">278dp</dimen>
 </resources>

@@ -10,6 +10,8 @@ import com.dsvoronin.udacitymovies.data.dto.DiscoverMoviesResponse;
 import com.dsvoronin.udacitymovies.data.entities.Movie;
 import com.dsvoronin.udacitymovies.data.entities.SortBy;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -26,6 +28,9 @@ import timber.log.Timber;
 
 @PerActivity
 public class GridModel implements Model<GridPresenter> {
+
+    private final SimpleDateFormat yearFormat = new SimpleDateFormat("yyyy");
+    private final SimpleDateFormat tmdbFormat = new SimpleDateFormat("yyyy-MM-dd");
 
     private final MovieDBService service;
 
@@ -97,7 +102,17 @@ public class GridModel implements Model<GridPresenter> {
                 .map(new Func1<Movie, Movie>() {
                     @Override
                     public Movie call(Movie movie) {
-                        return new Movie(movie.id, movie.title, movie.overview, imageEndpoint + imageQualifier + movie.posterPath, movie.releaseDate, movie.voteAverage);
+                        try {
+                            return new Movie(
+                                    movie.id,
+                                    movie.title,
+                                    movie.overview,
+                                    imageEndpoint + imageQualifier + movie.posterPath,
+                                    yearFormat.format(tmdbFormat.parse(movie.releaseDate)),
+                                    movie.voteAverage);
+                        } catch (ParseException e) {
+                            throw new RuntimeException(e);
+                        }
                     }
                 })
                 .toList()

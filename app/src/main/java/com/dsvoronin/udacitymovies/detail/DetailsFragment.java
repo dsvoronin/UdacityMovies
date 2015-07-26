@@ -80,6 +80,8 @@ public class DetailsFragment extends Fragment implements DetailsPresenter {
 
         binding.setMovie(movie);
 
+
+
         Glide.with(this)
                 .load(movie.posterPath)
                 .into(binding.detailsPoster);
@@ -144,7 +146,6 @@ public class DetailsFragment extends Fragment implements DetailsPresenter {
 
         @Override
         public void onCompleted() {
-
         }
 
         @Override
