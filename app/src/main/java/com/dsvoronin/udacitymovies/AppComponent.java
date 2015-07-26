@@ -7,7 +7,6 @@ import com.dsvoronin.udacitymovies.core.ImageQualifier;
 import com.dsvoronin.udacitymovies.data.DataModule;
 import com.dsvoronin.udacitymovies.data.MovieDBService;
 import com.dsvoronin.udacitymovies.detail.MovieDetailFragment;
-import com.squareup.picasso.Picasso;
 
 import javax.inject.Singleton;
 
@@ -18,8 +17,6 @@ import dagger.Component;
 public interface AppComponent {
 
     void inject(MovieDetailFragment fragment);
-
-    Picasso picasso();
 
     DisplayMetrics metrics();
 

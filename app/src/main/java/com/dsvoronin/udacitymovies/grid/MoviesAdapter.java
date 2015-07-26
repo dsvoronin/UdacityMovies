@@ -1,73 +1,82 @@
 package com.dsvoronin.udacitymovies.grid;
 
-import android.content.Context;
+import android.support.annotation.NonNull;
+import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AbsListView;
-import android.widget.GridView;
 import android.widget.ImageView;
 
+import com.bumptech.glide.RequestManager;
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.dsvoronin.udacitymovies.R;
 import com.dsvoronin.udacitymovies.data.Movie;
-import com.squareup.picasso.MemoryPolicy;
-import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import rx.Observable;
 import rx.functions.Action1;
+import rx.subjects.PublishSubject;
 
-public class MoviesAdapter extends BindableAdapter<Movie> implements Action1<List<Movie>> {
+public class MoviesAdapter extends RecyclerView.Adapter<MoviesAdapter.ViewHolder> implements Action1<List<Movie>> {
 
-    private static final float ASPECT = 1.5f;
-    private final Picasso picasso;
-    private final int imageWidth;
-    private List<Movie> data = new ArrayList<>();
+    private final RequestManager glide;
+    private final List<Movie> movies = new ArrayList<>();
+    private final PublishSubject<Movie> selectionStream = PublishSubject.create();
 
-    public MoviesAdapter(Context context, Picasso picasso, int imageWidth) {
-        super(context);
-        this.picasso = picasso;
-        this.imageWidth = imageWidth;
+    public MoviesAdapter(RequestManager picasso) {
+        this.glide = picasso;
+        setHasStableIds(true);
     }
 
     @Override
-    public int getCount() {
-        return data.size();
-    }
-
-    @Override
-    public Movie getItem(int position) {
-        return data.get(position);
+    public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+        return new ViewHolder(LayoutInflater.from(parent.getContext()).inflate(R.layout.grid_item, parent, false));
     }
 
     @Override
     public long getItemId(int position) {
-        return getItem(position).id;
+        return movies.get(position).id;
     }
 
     @Override
-    public View newView(LayoutInflater inflater, int position, ViewGroup container) {
-        ImageView imageView = new ImageView(getContext());
-        AbsListView.LayoutParams params = new GridView.LayoutParams(imageWidth, (int) (imageWidth * ASPECT));
-        imageView.setLayoutParams(params);
-        return imageView;
+    public void onBindViewHolder(ViewHolder holder, final int position) {
+        glide.load(movies.get(position).posterPath)
+                .diskCacheStrategy(DiskCacheStrategy.RESULT)
+                .into((ImageView) holder.itemView);
+
+        holder.itemView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(@NonNull View v) {
+                selectionStream.onNext(getItem(position));
+            }
+        });
+    }
+
+    public Observable<Movie> getSelectionStream() {
+        return selectionStream.asObservable();
+    }
+
+    public Movie getItem(int position) {
+        return movies.get(position);
     }
 
     @Override
-    public void bindView(Movie item, int position, View view) {
-        picasso.load(item.posterPath)
-                .fit()
-                .memoryPolicy(MemoryPolicy.NO_STORE)
-                .placeholder(R.drawable.noposter)
-                .error(R.drawable.noposter)
-                .into((ImageView) view);
+    public int getItemCount() {
+        return movies.size();
     }
 
     @Override
     public void call(List<Movie> movies) {
-        data.clear();
-        data.addAll(movies);
+        this.movies.clear();
+        this.movies.addAll(movies);
         notifyDataSetChanged();
+    }
+
+    public static class ViewHolder extends RecyclerView.ViewHolder {
+        public ViewHolder(View itemView) {
+            super(itemView);
+        }
     }
 }

@@ -1,7 +1,7 @@
 package com.dsvoronin.udacitymovies.grid;
 
-import android.widget.GridView;
-
+import com.dsvoronin.udacitymovies.core.ImageEndpoint;
+import com.dsvoronin.udacitymovies.core.ImageQualifier;
 import com.dsvoronin.udacitymovies.core.Model;
 import com.dsvoronin.udacitymovies.core.PerActivity;
 import com.dsvoronin.udacitymovies.data.DataSource;
@@ -18,7 +18,6 @@ import javax.inject.Inject;
 
 import rx.Observable;
 import rx.Subscriber;
-import rx.android.widget.OnItemClickEvent;
 import rx.functions.Action1;
 import rx.functions.Func1;
 import rx.functions.Func2;
@@ -34,9 +33,15 @@ public class MoviesGridModel implements Model {
 
     private MoviesGridPresenter presenter;
 
+    private final String imageEndpoint;
+
+    private final String imageQualifier;
+
     @Inject
-    public MoviesGridModel(MovieDBService service) {
+    public MoviesGridModel(MovieDBService service, @ImageEndpoint String imageEndpoint, @ImageQualifier String imageQualifier) {
         this.service = service;
+        this.imageEndpoint = imageEndpoint;
+        this.imageQualifier = imageQualifier;
     }
 
     public void attachPresenter(MoviesGridPresenter presenter) {
@@ -47,29 +52,10 @@ public class MoviesGridModel implements Model {
         this.presenter = null;
     }
 
-    public Observable<Movie> selectedMovieStream() {
-        return validSelectionsStream()
-                .map(new Func1<OnItemClickEvent, Movie>() {
-                    @Override
-                    public Movie call(OnItemClickEvent event) {
-                        return ((MoviesAdapter) event.parent().getAdapter()).getItem(event.position());
-                    }
-                });
-    }
-
-    public Observable<Integer> activatedPositionStream() {
-        return validSelectionsStream().map(new Func1<OnItemClickEvent, Integer>() {
-            @Override
-            public Integer call(OnItemClickEvent movieOnGridClickEvent) {
-                return movieOnGridClickEvent.position();
-            }
-        });
-    }
-
     public Observable<List<Movie>> dataStream() {
         return Observable.combineLatest(
-                presenter.reloadStream(),
-                presenter.sortingSelectionStream(), new Func2<Boolean, SortBy, SortBy>() {
+                presenter.reloadStream().startWith(true),
+                presenter.sortingSelectionStream().startWith(SortBy.POPULARITY_DESC), new Func2<Boolean, SortBy, SortBy>() {
                     @Override
                     public SortBy call(Boolean event, SortBy sortBy) {
                         return sortBy;
@@ -94,17 +80,6 @@ public class MoviesGridModel implements Model {
         inMemoryCache.clear();
     }
 
-    private Observable<OnItemClickEvent> validSelectionsStream() {
-        return presenter.movieSelectionStream()
-                .filter(new Func1<OnItemClickEvent, Boolean>() {
-                    @Override
-                    public Boolean call(OnItemClickEvent onItemClickEvent) {
-                        return onItemClickEvent.position() != GridView.INVALID_POSITION;
-                    }
-                })
-                .share();
-    }
-
     private Observable<List<Movie>> networkSource(final SortBy sortBy) {
         return service.getMovies(sortBy)
                 .map(new Func1<DiscoverMoviesResponse, List<Movie>>() {
@@ -113,6 +88,19 @@ public class MoviesGridModel implements Model {
                         return discoverMoviesResponse.results;
                     }
                 })
+                .flatMap(new Func1<List<Movie>, Observable<Movie>>() {
+                    @Override
+                    public Observable<Movie> call(List<Movie> movies) {
+                        return Observable.from(movies);
+                    }
+                })
+                .map(new Func1<Movie, Movie>() {
+                    @Override
+                    public Movie call(Movie movie) {
+                        return new Movie(movie.id, movie.title, movie.overview, imageEndpoint + imageQualifier + movie.posterPath, movie.releaseDate, movie.voteAverage);
+                    }
+                })
+                .toList()
                 .subscribeOn(Schedulers.io())
                 .doOnNext(new Action1<List<Movie>>() {
                     @Override

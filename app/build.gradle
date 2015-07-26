@@ -46,6 +46,7 @@ dependencies {
     dependencyInjection.each { compile it.value }
     rx.each { compile it.value }
     squareLibs.each { compile it.value }
+    image.each { compile it.value }
     debugOnly.each { debugCompile it.value }
     releaseOnly.each { releaseCompile it.value }
     annotationProcessing.each { apt it.value }

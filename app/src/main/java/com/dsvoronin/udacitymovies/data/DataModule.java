@@ -1,8 +1,6 @@
 package com.dsvoronin.udacitymovies.data;
 
 import android.app.Application;
-import android.net.Uri;
-import android.util.Log;
 
 import com.dsvoronin.udacitymovies.BuildConfig;
 import com.dsvoronin.udacitymovies.core.ImageEndpoint;
@@ -10,9 +8,6 @@ import com.dsvoronin.udacitymovies.core.ImageQualifier;
 import com.jakewharton.byteunits.DecimalByteUnit;
 import com.squareup.okhttp.Cache;
 import com.squareup.okhttp.OkHttpClient;
-import com.squareup.picasso.OkHttpDownloader;
-import com.squareup.picasso.Picasso;
-import com.squareup.picasso.Request;
 
 import java.io.File;
 
@@ -58,39 +53,6 @@ public class DataModule {
     @ImageQualifier
     String provideImageQualifier() {
         return "w185";
-    }
-
-    /**
-     * Seems this hack mocks real uri from resolving from cache
-     * <p/>
-     * edit: nope, that's not real cause.. searching further
-     */
-    @Provides
-    @Singleton
-    Picasso.RequestTransformer providerTransformer(@ImageEndpoint final String imageEndpoint, @ImageQualifier final String imageQualifier) {
-        return new Picasso.RequestTransformer() {
-            @Override
-            public Request transformRequest(Request request) {
-                return request.buildUpon()
-                        .setUri(Uri.parse(imageEndpoint + imageQualifier + request.uri.getPath()))
-                        .build();
-            }
-        };
-    }
-
-    @Provides
-    @Singleton
-    Picasso providePicasso(Application application, OkHttpClient okHttpClient, Picasso.RequestTransformer transformer) {
-        return new Picasso.Builder(application)
-                .requestTransformer(transformer)
-                .downloader(new OkHttpDownloader(okHttpClient))
-                .listener(new Picasso.Listener() {
-                    @Override
-                    public void onImageLoadFailed(Picasso picasso, Uri uri, Exception exception) {
-                        Log.e("Picasso", "Can't load image: " + uri, exception);
-                    }
-                })
-                .build();
     }
 
     @Provides

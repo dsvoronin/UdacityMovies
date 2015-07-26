@@ -7,18 +7,15 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.bumptech.glide.Glide;
 import com.dsvoronin.udacitymovies.AppModule;
 import com.dsvoronin.udacitymovies.DaggerAppComponent;
 import com.dsvoronin.udacitymovies.MoviesApp;
-import com.dsvoronin.udacitymovies.R;
 import com.dsvoronin.udacitymovies.UIModule;
 import com.dsvoronin.udacitymovies.data.DataModule;
 import com.dsvoronin.udacitymovies.data.Movie;
 import com.dsvoronin.udacitymovies.databinding.FragmentMovieDetailBinding;
 import com.dsvoronin.udacitymovies.grid.MoviesGridActivity;
-import com.squareup.picasso.Picasso;
-
-import javax.inject.Inject;
 
 /**
  * A fragment representing a single Movie detail screen.
@@ -32,8 +29,6 @@ public class MovieDetailFragment extends Fragment {
      * represents.
      */
     public static final String ARG_ITEM = "item";
-
-    @Inject Picasso picasso;
 
     /**
      * The dummy content this fragment is presenting.
@@ -77,9 +72,7 @@ public class MovieDetailFragment extends Fragment {
 
         if (movie != null) {
             binding.setMovie(movie);
-            picasso.load(movie.posterPath)
-                    .placeholder(R.drawable.noposter)
-                    .error(R.drawable.noposter)
+            Glide.with(this).load(movie.posterPath)
                     .into(binding.detailsPoster);
         }
 
