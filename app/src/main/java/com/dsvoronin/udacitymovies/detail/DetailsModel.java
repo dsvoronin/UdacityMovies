@@ -1,5 +1,7 @@
 package com.dsvoronin.udacitymovies.detail;
 
+import android.view.MenuItem;
+
 import com.dsvoronin.udacitymovies.core.Model;
 import com.dsvoronin.udacitymovies.core.PerActivity;
 import com.dsvoronin.udacitymovies.data.MovieDBService;
@@ -15,8 +17,11 @@ import java.util.List;
 import javax.inject.Inject;
 
 import rx.Observable;
+import rx.functions.Action1;
 import rx.functions.Func1;
 import rx.schedulers.Schedulers;
+import rx.subjects.BehaviorSubject;
+import rx.subscriptions.CompositeSubscription;
 import timber.log.Timber;
 
 @PerActivity
@@ -24,6 +29,8 @@ public class DetailsModel implements Model<DetailsPresenter> {
 
     private final MovieDBService service;
     private final Observable<Movie> moviesSelection;
+    private final BehaviorSubject<Boolean> favouriteState = BehaviorSubject.create(false);
+    private final CompositeSubscription subscription = new CompositeSubscription();
 
     private final Func1<Trailer, Boolean> youtubeOnlyFilter = new Func1<Trailer, Boolean>() {
         @Override
@@ -40,8 +47,6 @@ public class DetailsModel implements Model<DetailsPresenter> {
 
     private final FlatIterable<Trailer> flatIterable = new FlatIterable<>();
 
-    private DetailsPresenter presenter;
-
     @Inject
     public DetailsModel(MovieDBService service, Observable<Movie> moviesSelection) {
         this.service = service;
@@ -55,6 +60,10 @@ public class DetailsModel implements Model<DetailsPresenter> {
                 return networkSource(movie);
             }
         });
+    }
+
+    public Observable<Boolean> favouriteState() {
+        return favouriteState.asObservable();
     }
 
     public Observable<Movie> dataStream() {
@@ -97,11 +106,16 @@ public class DetailsModel implements Model<DetailsPresenter> {
 
     @Override
     public void attachPresenter(DetailsPresenter presenter) {
-        this.presenter = presenter;
+        subscription.add(presenter.favouritesClicks().subscribe(new Action1<MenuItem>() {
+            @Override
+            public void call(MenuItem menuItem) {
+                favouriteState.onNext(!favouriteState.getValue());
+            }
+        }));
     }
 
     @Override
     public void detachPresenter() {
-        this.presenter = null;
+        subscription.clear();
     }
 }
