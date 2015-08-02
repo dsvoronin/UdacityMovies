@@ -1,19 +1,18 @@
 buildscript {
+    apply from: 'dependencies.gradle'
+
     repositories {
         jcenter()
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:1.3.0-beta4'
-        classpath 'com.android.databinding:dataBinder:1.0-rc1'
-        classpath 'com.neenbedankt.gradle.plugins:android-apt:1.5.1'
+        buildscriptDependencies.each { classpath it.value }
     }
 }
 
 apply plugin: 'com.android.application'
 apply plugin: 'com.android.databinding'
 apply plugin: 'com.neenbedankt.android-apt'
-
-apply from: 'dependencies.gradle'
+apply plugin: 'com.github.ben-manes.versions'
 
 android {
     compileSdkVersion 22
@@ -42,11 +41,7 @@ repositories {
 }
 
 dependencies {
-    supportDependencies.each { compile it.value }
-    dependencyInjection.each { compile it.value }
-    rx.each { compile it.value }
-    squareLibs.each { compile it.value }
-    image.each { compile it.value }
+    compileTimeDependencies.each { compile it.value }
     debugOnly.each { debugCompile it.value }
     releaseOnly.each { releaseCompile it.value }
     annotationProcessing.each { apt it.value }
