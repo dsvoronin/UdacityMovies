@@ -1,5 +1,6 @@
 package com.dsvoronin.udacitymovies.detail;
 
+import android.util.Pair;
 import android.view.MenuItem;
 
 import com.dsvoronin.udacitymovies.core.Model;
@@ -11,14 +12,18 @@ import com.dsvoronin.udacitymovies.data.entities.Movie;
 import com.dsvoronin.udacitymovies.data.entities.Review;
 import com.dsvoronin.udacitymovies.data.entities.Trailer;
 import com.dsvoronin.udacitymovies.rx.FlatIterable;
+import com.pushtorefresh.storio.sqlite.StorIOSQLite;
+import com.pushtorefresh.storio.sqlite.queries.Query;
 
 import java.util.List;
 
 import javax.inject.Inject;
 
 import rx.Observable;
+import rx.android.schedulers.AndroidSchedulers;
 import rx.functions.Action1;
 import rx.functions.Func1;
+import rx.functions.Func2;
 import rx.schedulers.Schedulers;
 import rx.subjects.BehaviorSubject;
 import rx.subscriptions.CompositeSubscription;
@@ -29,6 +34,7 @@ public class DetailsModel implements Model<DetailsPresenter> {
 
     private final MovieDBService service;
     private final Observable<Movie> moviesSelection;
+    private final StorIOSQLite storIOSQLite;
     private final BehaviorSubject<Boolean> favouriteState = BehaviorSubject.create(false);
     private final CompositeSubscription subscription = new CompositeSubscription();
 
@@ -47,10 +53,33 @@ public class DetailsModel implements Model<DetailsPresenter> {
 
     private final FlatIterable<Trailer> flatIterable = new FlatIterable<>();
 
+    /**
+     * emits all favourite movies on each database change
+     */
+    private final Observable<List<Movie>> favouritesDatabase;
+
     @Inject
-    public DetailsModel(MovieDBService service, Observable<Movie> moviesSelection) {
+    public DetailsModel(MovieDBService service, Observable<Movie> moviesSelection, StorIOSQLite storIOSQLite) {
         this.service = service;
         this.moviesSelection = moviesSelection;
+        this.storIOSQLite = storIOSQLite;
+
+        favouritesDatabase = storIOSQLite.get()
+                .listOfObjects(Movie.class)
+                .withQuery(
+                        Query.builder()
+                                .table("movies")
+                                .build())
+                .prepare()
+                .createObservable()
+                .observeOn(AndroidSchedulers.mainThread())
+                .doOnNext(new Action1<List<Movie>>() {
+                    @Override
+                    public void call(List<Movie> movies) {
+                        Timber.d("Favourites = " + movies);
+                    }
+                })
+                .replay(1).refCount();
     }
 
     public Observable<List<Trailer>> trailersStream() {
@@ -106,10 +135,56 @@ public class DetailsModel implements Model<DetailsPresenter> {
 
     @Override
     public void attachPresenter(DetailsPresenter presenter) {
-        subscription.add(presenter.favouritesClicks().subscribe(new Action1<MenuItem>() {
+
+        Observable<Pair<Movie, Boolean>> isMovieFavourite = moviesSelection.flatMap(new Func1<Movie, Observable<Pair<Movie, Boolean>>>() {
             @Override
-            public void call(MenuItem menuItem) {
-                favouriteState.onNext(!favouriteState.getValue());
+            public Observable<Pair<Movie, Boolean>> call(final Movie movie) {
+                return favouritesDatabase.map(new Func1<List<Movie>, Pair<Movie, Boolean>>() {
+                    @Override
+                    public Pair<Movie, Boolean> call(List<Movie> movies) {
+                        return new Pair<>(movie, movies.contains(movie));
+                    }
+                });
+            }
+        });
+
+        subscription.add(isMovieFavourite.first()
+                .map(new Func1<Pair<Movie, Boolean>, Boolean>() {
+                    @Override
+                    public Boolean call(Pair<Movie, Boolean> movieBooleanPair) {
+                        return movieBooleanPair.second;
+                    }
+                })
+                .subscribe(new Action1<Boolean>() {
+                    @Override
+                    public void call(Boolean isFavourite) {
+                        favouriteState.onNext(isFavourite);
+                    }
+                }));
+
+        Observable<Pair<Movie, Boolean>> toggleFavourite = presenter.favouritesClicks()
+                .withLatestFrom(isMovieFavourite, new Func2<MenuItem, Pair<Movie, Boolean>, Pair<Movie, Boolean>>() {
+                    @Override
+                    public Pair<Movie, Boolean> call(MenuItem menuItem, Pair<Movie, Boolean> movie) {
+                        return new Pair<>(movie.first, !movie.second);
+                    }
+                });
+
+        subscription.add(toggleFavourite.subscribe(new Action1<Pair<Movie, Boolean>>() {
+            @Override
+            public void call(Pair<Movie, Boolean> movie) {
+                if (movie.second) {
+                    storIOSQLite.put()
+                            .object(movie.first)
+                            .prepare()
+                            .executeAsBlocking();
+                } else {
+                    storIOSQLite.delete()
+                            .object(movie.first)
+                            .prepare()
+                            .executeAsBlocking();
+                }
+                favouriteState.onNext(movie.second);
             }
         }));
     }

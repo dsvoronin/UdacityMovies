@@ -9,6 +9,7 @@ import com.dsvoronin.udacitymovies.data.DataModule;
 import com.dsvoronin.udacitymovies.data.MovieDBService;
 import com.dsvoronin.udacitymovies.data.entities.Movie;
 import com.dsvoronin.udacitymovies.rx.RxFragment;
+import com.pushtorefresh.storio.sqlite.StorIOSQLite;
 import com.squareup.leakcanary.RefWatcher;
 
 import javax.inject.Singleton;
@@ -32,6 +33,8 @@ public interface AppComponent {
     Observable<Movie> movieSelection();
 
     Observer<Movie> movieSelector();
+
+    StorIOSQLite storIOSQLite();
 
     @ImageQualifier
     String imageQualifier();

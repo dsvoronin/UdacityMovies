@@ -11,7 +11,7 @@ import rx.Observer;
 import rx.subjects.BehaviorSubject;
 import rx.subjects.Subject;
 
-@Module(includes = {ImageModule.class, NetworkModule.class, ApiModule.class})
+@Module(includes = {ImageModule.class, NetworkModule.class, ApiModule.class, PersistModule.class})
 public class DataModule {
 
     private final Subject<Movie, Movie> movieSelectionSubject;
@@ -28,8 +28,7 @@ public class DataModule {
 
     @Provides
     @Singleton
-    Observer<Movie> provideMovieSelectior() {
+    Observer<Movie> provideMovieSelector() {
         return movieSelectionSubject;
     }
-
 }

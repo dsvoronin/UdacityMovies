@@ -2,31 +2,51 @@ package com.dsvoronin.udacitymovies.data.entities;
 
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.support.annotation.NonNull;
 
 import com.google.gson.annotations.SerializedName;
+import com.pushtorefresh.storio.sqlite.annotations.StorIOSQLiteColumn;
+import com.pushtorefresh.storio.sqlite.annotations.StorIOSQLiteType;
 
+@StorIOSQLiteType(table = "movies")
 public class Movie implements Parcelable {
 
     public static final Creator<Movie> CREATOR = new Creator<Movie>() {
         @Override
-        public Movie createFromParcel(Parcel in) {
+        public Movie createFromParcel(@NonNull Parcel in) {
             return new Movie(in);
         }
 
+        @NonNull
         @Override
         public Movie[] newArray(int size) {
             return new Movie[size];
         }
     };
-    public final long id;
-    public final String title;
-    public final String overview;
+
+    @StorIOSQLiteColumn(name = "_id", key = true)
+    public long id;
+
+    @StorIOSQLiteColumn(name = "title")
+    public String title;
+
+    @StorIOSQLiteColumn(name = "overview")
+    public String overview;
+
+    @StorIOSQLiteColumn(name = "poster_path")
     @SerializedName("poster_path")
-    public final String posterPath;
+    public String posterPath;
+
+    @StorIOSQLiteColumn(name = "release_date")
     @SerializedName("release_date")
-    public final String releaseDate;
+    public String releaseDate;
+
+    @StorIOSQLiteColumn(name = "vote_average")
     @SerializedName("vote_average")
-    public final String voteAverage;
+    public String voteAverage;
+
+    public Movie() {
+    }
 
     public Movie(long id, String title, String overview, String posterPath, String releaseDate, String voteAverage) {
         this.id = id;
@@ -46,6 +66,22 @@ public class Movie implements Parcelable {
         voteAverage = in.readString();
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        Movie movie = (Movie) o;
+
+        return id == movie.id;
+
+    }
+
+    @Override
+    public int hashCode() {
+        return (int) (id ^ (id >>> 32));
+    }
+
     /**
      * another way to get full image path.
      * not so good as Picasso injection.
@@ -57,7 +93,7 @@ public class Movie implements Parcelable {
     }
 
     @Override
-    public void writeToParcel(Parcel dest, int flags) {
+    public void writeToParcel(@NonNull Parcel dest, int flags) {
         dest.writeLong(id);
         dest.writeString(title);
         dest.writeString(overview);
@@ -76,7 +112,6 @@ public class Movie implements Parcelable {
         return "Movie{" +
                 "id=" + id +
                 ", title='" + title + '\'' +
-                ", posterPath='" + posterPath + '\'' +
                 '}';
     }
 }

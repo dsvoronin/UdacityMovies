@@ -24,7 +24,8 @@ ext {
     ]
 
     annotationProcessing = [
-            dagger: "com.google.dagger:dagger-compiler:$daggerVersion"
+            dagger                 : "com.google.dagger:dagger-compiler:$daggerVersion",
+            storioSQLiteAnnotations: "com.pushtorefresh.storio:sqlite-annotations-processor:$storioVersion"
     ]
 
     rx = [
@@ -39,7 +40,8 @@ ext {
     ]
 
     persist = [
-            storioSQLite: "com.pushtorefresh.storio:sqlite:$storioVersion"
+            storioSQLite           : "com.pushtorefresh.storio:sqlite:$storioVersion",
+            storioSQLiteAnnotations: "com.pushtorefresh.storio:sqlite-annotations:$storioVersion"
     ]
 
     image = [
@@ -54,5 +56,5 @@ ext {
             leakcanaryHeadless: "com.squareup.leakcanary:leakcanary-android-no-op:$leakCanaryVersion"
     ]
 
-    compileTimeDependencies = supportDependencies + dependencyInjection + rx + squareLibs + image
+    compileTimeDependencies = supportDependencies + dependencyInjection + rx + squareLibs + image + persist
 }
