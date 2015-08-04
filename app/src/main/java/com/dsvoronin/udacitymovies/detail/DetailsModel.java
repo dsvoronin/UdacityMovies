@@ -150,7 +150,7 @@ public class DetailsModel implements Model<DetailsPresenter> {
             }
         });
 
-        subscription.add(isMovieFavourite.first()
+        subscription.add(isMovieFavourite
                 .map(new Func1<Pair<Movie, Boolean>, Boolean>() {
                     @Override
                     public Boolean call(Pair<Movie, Boolean> movieBooleanPair) {
