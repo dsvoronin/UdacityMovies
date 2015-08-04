@@ -1,5 +1,7 @@
 package com.dsvoronin.udacitymovies.grid;
 
+import android.util.Pair;
+
 import com.dsvoronin.udacitymovies.core.DeviceClass;
 import com.dsvoronin.udacitymovies.core.ImageEndpoint;
 import com.dsvoronin.udacitymovies.core.ImageQualifier;
@@ -11,9 +13,12 @@ import com.dsvoronin.udacitymovies.data.api.MovieDBService;
 import com.dsvoronin.udacitymovies.data.dto.DiscoverMoviesResponse;
 import com.dsvoronin.udacitymovies.data.dto.TMDBMovie;
 import com.dsvoronin.udacitymovies.data.entities.Movie;
+import com.dsvoronin.udacitymovies.data.entities.Section;
 import com.dsvoronin.udacitymovies.data.entities.SortBy;
 import com.dsvoronin.udacitymovies.data.transform.MovieTransformation;
 import com.dsvoronin.udacitymovies.rx.FlatIterable;
+import com.pushtorefresh.storio.sqlite.StorIOSQLite;
+import com.pushtorefresh.storio.sqlite.queries.Query;
 
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -25,16 +30,16 @@ import javax.inject.Inject;
 
 import rx.Observable;
 import rx.Subscriber;
+import rx.android.schedulers.AndroidSchedulers;
 import rx.functions.Action1;
 import rx.functions.Func1;
-import rx.functions.Func2;
+import rx.functions.Func3;
 import rx.schedulers.Schedulers;
 import rx.subscriptions.CompositeSubscription;
 import timber.log.Timber;
 
 @PerActivity
 public class GridModel implements Model<GridPresenter> {
-
 
     private final MovieDBService service;
 
@@ -43,6 +48,7 @@ public class GridModel implements Model<GridPresenter> {
     private final MovieTransformation movieTransformation;
 
     private GridPresenter presenter;
+    private final StorIOSQLite storIOSQLite;
 
     private final Observable<Movie> movieSelection;
     private final DeviceClass deviceClass;
@@ -51,8 +57,9 @@ public class GridModel implements Model<GridPresenter> {
     private final CompositeSubscription subscription = new CompositeSubscription();
 
     @Inject
-    public GridModel(MovieDBService service, Locale locale, @ImageEndpoint String imageEndpoint, @ImageQualifier String imageQualifier, Observable<Movie> movieSelection, DeviceClass deviceClass) {
+    public GridModel(MovieDBService service, Locale locale, @ImageEndpoint String imageEndpoint, @ImageQualifier String imageQualifier, StorIOSQLite storIOSQLite, Observable<Movie> movieSelection, DeviceClass deviceClass) {
         this.service = service;
+        this.storIOSQLite = storIOSQLite;
         this.movieSelection = movieSelection;
         this.deviceClass = deviceClass;
         this.movieTransformation = new MovieTransformation(locale, imageEndpoint, imageQualifier);
@@ -79,22 +86,30 @@ public class GridModel implements Model<GridPresenter> {
     public Observable<List<Movie>> dataStream() {
         return Observable.combineLatest(
                 presenter.reloadStream().startWith(true),
-                presenter.sortingSelectionStream().startWith(SortBy.POPULARITY_DESC), new Func2<Boolean, SortBy, SortBy>() {
+                presenter.favouritesSelectionStream().startWith(false),
+                presenter.sortingSelectionStream().startWith(SortBy.POPULARITY_DESC), new Func3<Boolean, Boolean, SortBy, Pair<Section, SortBy>>() {
                     @Override
-                    public SortBy call(Boolean event, SortBy sortBy) {
-                        return sortBy;
+                    public Pair<Section, SortBy> call(Boolean refreshes, Boolean favourites, SortBy sortBy) {
+                        return new Pair<>(favourites ? Section.FAVOURITES : Section.DISCOVER, sortBy);
                     }
                 })
-                .flatMap(new Func1<SortBy, Observable<List<Movie>>>() {
+                .flatMap(new Func1<Pair<Section, SortBy>, Observable<List<Movie>>>() {
                     @Override
-                    public Observable<List<Movie>> call(SortBy sortBy) {
-                        return Observable.concat(memorySource(sortBy), networkSource(sortBy))
-                                .first(new Func1<List<Movie>, Boolean>() {
-                                    @Override
-                                    public Boolean call(List<Movie> movies) {
-                                        return movies != null;
-                                    }
-                                });
+                    public Observable<List<Movie>> call(Pair<Section, SortBy> pair) {
+                        switch (pair.first) {
+                            case DISCOVER:
+                                return Observable.concat(memorySource(pair.second), networkSource(pair.second))
+                                        .first(new Func1<List<Movie>, Boolean>() {
+                                            @Override
+                                            public Boolean call(List<Movie> movies) {
+                                                return movies != null;
+                                            }
+                                        });
+                            case FAVOURITES:
+                                return diskFavouritesSource();
+                            default:
+                                throw new IllegalArgumentException("Unknown Section: " + pair.first);
+                        }
                     }
                 });
     }
@@ -136,5 +151,24 @@ public class GridModel implements Model<GridPresenter> {
             }
         })
                 .compose(new DataSourceLogger<Movie>(DataSource.MEMORY));
+    }
+
+    private Observable<List<Movie>> diskFavouritesSource() {
+        return storIOSQLite.get()
+                .listOfObjects(Movie.class)
+                .withQuery(
+                        Query.builder()
+                                .table("movies")
+                                .build())
+                .prepare()
+                .createObservable()
+                .observeOn(AndroidSchedulers.mainThread())
+                .doOnNext(new Action1<List<Movie>>() {
+                    @Override
+                    public void call(List<Movie> movies) {
+                        Timber.d("Favourites = " + movies);
+                    }
+                })
+                .replay(1).refCount();
     }
 }

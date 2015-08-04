@@ -117,19 +117,46 @@ public class GridFragment extends RxFragment implements GridPresenter {
 
     @Override
     public Observable<SortBy> sortingSelectionStream() {
-        return ((RxActivity) getActivity()).onOptionsItemSelectedStream().map(new Func1<MenuItem, SortBy>() {
-            @Override
-            public SortBy call(MenuItem menuItem) {
-                switch (menuItem.getItemId()) {
-                    case R.id.sort_by_popularity:
-                        return SortBy.POPULARITY_DESC;
-                    case R.id.sort_by_rating:
-                        return SortBy.VOTE_AVERAGE_DESC;
-                    default:
-                        return SortBy.POPULARITY_DESC;
-                }
-            }
-        });
+        return ((RxActivity) getActivity()).onOptionsItemSelectedStream()
+                .map(new Func1<MenuItem, Integer>() {
+                    @Override
+                    public Integer call(MenuItem menuItem) {
+                        return menuItem.getItemId();
+                    }
+                })
+                .filter(new Func1<Integer, Boolean>() {
+                    @Override
+                    public Boolean call(Integer itemId) {
+                        return itemId != R.id.favourites;
+                    }
+                })
+                .map(new Func1<Integer, SortBy>() {
+                    @Override
+                    public SortBy call(Integer itemId) {
+                        switch (itemId) {
+                            case R.id.sort_by_popularity:
+                                return SortBy.POPULARITY_DESC;
+                            case R.id.sort_by_rating:
+                                return SortBy.VOTE_AVERAGE_DESC;
+                            default:
+                                return SortBy.POPULARITY_DESC;
+                        }
+                    }
+                });
+    }
+
+    /**
+     * emits only options menu Favourite clicks
+     */
+    @Override
+    public Observable<Boolean> favouritesSelectionStream() {
+        return ((RxActivity) getActivity()).onOptionsItemSelectedStream()
+                .map(new Func1<MenuItem, Boolean>() {
+                    @Override
+                    public Boolean call(MenuItem menuItem) {
+                        return menuItem.getItemId() == R.id.favourites;
+                    }
+                });
     }
 
     @Override
