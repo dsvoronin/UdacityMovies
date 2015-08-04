@@ -25,8 +25,8 @@ public class GridAdapter extends RecyclerView.Adapter<GridAdapter.ViewHolder> im
     private final List<Movie> movies = new ArrayList<>();
     private final PublishSubject<Movie> selectionStream = PublishSubject.create();
 
-    public GridAdapter(RequestManager picasso) {
-        this.glide = picasso;
+    public GridAdapter(RequestManager glide) {
+        this.glide = glide;
         setHasStableIds(true);
     }
 
@@ -42,7 +42,7 @@ public class GridAdapter extends RecyclerView.Adapter<GridAdapter.ViewHolder> im
 
     @Override
     public void onBindViewHolder(ViewHolder holder, final int position) {
-        glide.load(movies.get(position).posterPath)
+        glide.load(movies.get(position).posterPath.toString())
                 .diskCacheStrategy(DiskCacheStrategy.RESULT)
                 .into((ImageView) holder.itemView);
 

@@ -2,33 +2,41 @@ package com.dsvoronin.udacitymovies.data.entities;
 
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.support.annotation.NonNull;
 
-import com.google.gson.annotations.SerializedName;
+import com.squareup.okhttp.HttpUrl;
 
 public class Movie implements Parcelable {
 
     public static final Creator<Movie> CREATOR = new Creator<Movie>() {
         @Override
-        public Movie createFromParcel(Parcel in) {
+        public Movie createFromParcel(@NonNull Parcel in) {
             return new Movie(in);
         }
 
+        @NonNull
         @Override
         public Movie[] newArray(int size) {
             return new Movie[size];
         }
     };
-    public final long id;
-    public final String title;
-    public final String overview;
-    @SerializedName("poster_path")
-    public final String posterPath;
-    @SerializedName("release_date")
-    public final String releaseDate;
-    @SerializedName("vote_average")
-    public final String voteAverage;
 
-    public Movie(long id, String title, String overview, String posterPath, String releaseDate, String voteAverage) {
+    public long id;
+
+    public String title;
+
+    public String overview;
+
+    public HttpUrl posterPath;
+
+    public String releaseDate;
+
+    public String voteAverage;
+
+    public Movie() {
+    }
+
+    public Movie(long id, String title, String overview, HttpUrl posterPath, String releaseDate, String voteAverage) {
         this.id = id;
         this.title = title;
         this.overview = overview;
@@ -41,27 +49,32 @@ public class Movie implements Parcelable {
         id = in.readLong();
         title = in.readString();
         overview = in.readString();
-        posterPath = in.readString();
+        posterPath = HttpUrl.parse(in.readString());
         releaseDate = in.readString();
         voteAverage = in.readString();
     }
 
-    /**
-     * another way to get full image path.
-     * not so good as Picasso injection.
-     * this pojo don't want to know about such details
-     */
-    @Deprecated
-    public String getPosterFullUrl(String endpoint, String qualifier) {
-        return endpoint + qualifier + posterPath;
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        Movie movie = (Movie) o;
+
+        return id == movie.id;
     }
 
     @Override
-    public void writeToParcel(Parcel dest, int flags) {
+    public int hashCode() {
+        return (int) (id ^ (id >>> 32));
+    }
+
+    @Override
+    public void writeToParcel(@NonNull Parcel dest, int flags) {
         dest.writeLong(id);
         dest.writeString(title);
         dest.writeString(overview);
-        dest.writeString(posterPath);
+        dest.writeString(posterPath.toString());
         dest.writeString(releaseDate);
         dest.writeString(voteAverage);
     }
@@ -76,7 +89,6 @@ public class Movie implements Parcelable {
         return "Movie{" +
                 "id=" + id +
                 ", title='" + title + '\'' +
-                ", posterPath='" + posterPath + '\'' +
                 '}';
     }
 }

@@ -1,81 +1,119 @@
 package com.dsvoronin.udacitymovies.grid;
 
+import android.util.Pair;
+
+import com.dsvoronin.udacitymovies.core.DeviceClass;
 import com.dsvoronin.udacitymovies.core.ImageEndpoint;
 import com.dsvoronin.udacitymovies.core.ImageQualifier;
 import com.dsvoronin.udacitymovies.core.Model;
 import com.dsvoronin.udacitymovies.core.PerActivity;
 import com.dsvoronin.udacitymovies.data.DataSource;
-import com.dsvoronin.udacitymovies.data.MovieDBService;
+import com.dsvoronin.udacitymovies.data.DataSourceLogger;
+import com.dsvoronin.udacitymovies.data.api.MovieDBService;
 import com.dsvoronin.udacitymovies.data.dto.DiscoverMoviesResponse;
+import com.dsvoronin.udacitymovies.data.dto.TMDBMovie;
 import com.dsvoronin.udacitymovies.data.entities.Movie;
+import com.dsvoronin.udacitymovies.data.entities.Section;
 import com.dsvoronin.udacitymovies.data.entities.SortBy;
+import com.dsvoronin.udacitymovies.data.persist.MoviesContentProvider;
+import com.dsvoronin.udacitymovies.data.transform.MovieTransformation;
+import com.dsvoronin.udacitymovies.rx.FlatIterable;
+import com.pushtorefresh.storio.contentresolver.StorIOContentResolver;
+import com.pushtorefresh.storio.contentresolver.queries.Query;
 
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 import javax.inject.Inject;
 
 import rx.Observable;
 import rx.Subscriber;
+import rx.android.schedulers.AndroidSchedulers;
 import rx.functions.Action1;
 import rx.functions.Func1;
-import rx.functions.Func2;
+import rx.functions.Func3;
 import rx.schedulers.Schedulers;
+import rx.subscriptions.CompositeSubscription;
 import timber.log.Timber;
 
 @PerActivity
 public class GridModel implements Model<GridPresenter> {
 
-    private final SimpleDateFormat yearFormat = new SimpleDateFormat("yyyy");
-    private final SimpleDateFormat tmdbFormat = new SimpleDateFormat("yyyy-MM-dd");
-
     private final MovieDBService service;
 
     private final Map<SortBy, List<Movie>> inMemoryCache = new LinkedHashMap<>();
 
+    private final MovieTransformation movieTransformation;
+
+    private final StorIOContentResolver contentResolver;
+
+    private final Observable<Movie> movieSelection;
+
+    private final DeviceClass deviceClass;
+
+    private final FlatIterable<TMDBMovie> flatIterable = new FlatIterable<>();
+
+    private final CompositeSubscription subscription = new CompositeSubscription();
+
     private GridPresenter presenter;
 
-    private final String imageEndpoint;
-
-    private final String imageQualifier;
-
     @Inject
-    public GridModel(MovieDBService service, @ImageEndpoint String imageEndpoint, @ImageQualifier String imageQualifier) {
+    public GridModel(MovieDBService service, Locale locale, @ImageEndpoint String imageEndpoint, @ImageQualifier String imageQualifier, StorIOContentResolver contentResolver, Observable<Movie> movieSelection, DeviceClass deviceClass) {
         this.service = service;
-        this.imageEndpoint = imageEndpoint;
-        this.imageQualifier = imageQualifier;
+        this.contentResolver = contentResolver;
+        this.movieSelection = movieSelection;
+        this.deviceClass = deviceClass;
+        this.movieTransformation = new MovieTransformation(locale, imageEndpoint, imageQualifier);
     }
 
-    public void attachPresenter(GridPresenter presenter) {
+    public void attachPresenter(final GridPresenter presenter) {
         this.presenter = presenter;
+
+        subscription.add(movieSelection
+                .skip(150, TimeUnit.MILLISECONDS) //todo something better :P
+                .subscribe(new Action1<Movie>() {
+                    @Override
+                    public void call(Movie movie) {
+                        if (deviceClass == DeviceClass.PHONE) presenter.displayDetailActivity();
+                    }
+                }));
     }
 
     public void detachPresenter() {
+        subscription.clear();
         this.presenter = null;
     }
 
     public Observable<List<Movie>> dataStream() {
         return Observable.combineLatest(
                 presenter.reloadStream().startWith(true),
-                presenter.sortingSelectionStream().startWith(SortBy.POPULARITY_DESC), new Func2<Boolean, SortBy, SortBy>() {
+                presenter.favouritesSelectionStream().startWith(false),
+                presenter.sortingSelectionStream().startWith(SortBy.POPULARITY_DESC), new Func3<Boolean, Boolean, SortBy, Pair<Section, SortBy>>() {
                     @Override
-                    public SortBy call(Boolean event, SortBy sortBy) {
-                        return sortBy;
+                    public Pair<Section, SortBy> call(Boolean refreshes, Boolean favourites, SortBy sortBy) {
+                        return new Pair<>(favourites ? Section.FAVOURITES : Section.DISCOVER, sortBy);
                     }
                 })
-                .flatMap(new Func1<SortBy, Observable<List<Movie>>>() {
+                .flatMap(new Func1<Pair<Section, SortBy>, Observable<List<Movie>>>() {
                     @Override
-                    public Observable<List<Movie>> call(SortBy sortBy) {
-                        return Observable.concat(memorySource(sortBy), networkSource(sortBy))
-                                .first(new Func1<List<Movie>, Boolean>() {
-                                    @Override
-                                    public Boolean call(List<Movie> movies) {
-                                        return movies != null;
-                                    }
-                                });
+                    public Observable<List<Movie>> call(Pair<Section, SortBy> pair) {
+                        switch (pair.first) {
+                            case DISCOVER:
+                                return Observable.concat(memorySource(pair.second), networkSource(pair.second))
+                                        .first(new Func1<List<Movie>, Boolean>() {
+                                            @Override
+                                            public Boolean call(List<Movie> movies) {
+                                                return movies != null;
+                                            }
+                                        });
+                            case FAVOURITES:
+                                return diskFavouritesSource();
+                            default:
+                                throw new IllegalArgumentException("Unknown Section: " + pair.first);
+                        }
                     }
                 });
     }
@@ -87,34 +125,14 @@ public class GridModel implements Model<GridPresenter> {
 
     private Observable<List<Movie>> networkSource(final SortBy sortBy) {
         return service.getMovies(sortBy)
-                .map(new Func1<DiscoverMoviesResponse, List<Movie>>() {
+                .map(new Func1<DiscoverMoviesResponse, List<TMDBMovie>>() {
                     @Override
-                    public List<Movie> call(DiscoverMoviesResponse discoverMoviesResponse) {
+                    public List<TMDBMovie> call(DiscoverMoviesResponse discoverMoviesResponse) {
                         return discoverMoviesResponse.results;
                     }
                 })
-                .flatMap(new Func1<List<Movie>, Observable<Movie>>() {
-                    @Override
-                    public Observable<Movie> call(List<Movie> movies) {
-                        return Observable.from(movies);
-                    }
-                })
-                .map(new Func1<Movie, Movie>() {
-                    @Override
-                    public Movie call(Movie movie) {
-                        try {
-                            return new Movie(
-                                    movie.id,
-                                    movie.title,
-                                    movie.overview,
-                                    imageEndpoint + imageQualifier + movie.posterPath,
-                                    yearFormat.format(tmdbFormat.parse(movie.releaseDate)),
-                                    movie.voteAverage);
-                        } catch (ParseException e) {
-                            throw new RuntimeException(e);
-                        }
-                    }
-                })
+                .flatMap(flatIterable)
+                .map(movieTransformation)
                 .toList()
                 .subscribeOn(Schedulers.io())
                 .doOnNext(new Action1<List<Movie>>() {
@@ -123,7 +141,7 @@ public class GridModel implements Model<GridPresenter> {
                         inMemoryCache.put(sortBy, movies);
                     }
                 })
-                .compose(new Logger(DataSource.NETWORK));
+                .compose(new DataSourceLogger<Movie>(DataSource.NETWORK));
     }
 
     private Observable<List<Movie>> memorySource(final SortBy sortBy) {
@@ -136,25 +154,25 @@ public class GridModel implements Model<GridPresenter> {
                 subscriber.onCompleted();
             }
         })
-                .compose(new Logger(DataSource.MEMORY));
+                .compose(new DataSourceLogger<Movie>(DataSource.MEMORY));
     }
 
-    // Simple logging to let us know what each source is returning
-    private static class Logger implements Observable.Transformer<List<Movie>, List<Movie>> {
-        private final DataSource source;
-
-        private Logger(DataSource source) {
-            this.source = source;
-        }
-
-        @Override
-        public Observable<List<Movie>> call(Observable<List<Movie>> data) {
-            if (data == null) {
-                Timber.d(source + " does not have any data.");
-            } else {
-                Timber.d(source + " has the data you are looking for!");
-            }
-            return data;
-        }
+    private Observable<List<Movie>> diskFavouritesSource() {
+        return contentResolver.get()
+                .listOfObjects(Movie.class)
+                .withQuery(
+                        Query.builder()
+                                .uri(MoviesContentProvider.CONTENT_URI)
+                                .build())
+                .prepare()
+                .createObservable()
+                .observeOn(AndroidSchedulers.mainThread())
+                .doOnNext(new Action1<List<Movie>>() {
+                    @Override
+                    public void call(List<Movie> movies) {
+                        Timber.d("Favourites = " + movies);
+                    }
+                })
+                .replay(1).refCount();
     }
 }

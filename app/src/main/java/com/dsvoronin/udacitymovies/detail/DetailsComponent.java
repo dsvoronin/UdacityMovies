@@ -6,7 +6,7 @@ import com.dsvoronin.udacitymovies.core.PerActivity;
 import dagger.Component;
 
 @PerActivity
-@Component(dependencies = {AppComponent.class})
+@Component(dependencies = {AppComponent.class}, modules = {DetailsModule.class})
 public interface DetailsComponent extends AppComponent {
 
     void inject(DetailsFragment fragment);

@@ -14,6 +14,11 @@ public interface GridPresenter extends Presenter {
     Observable<SortBy> sortingSelectionStream();
 
     /**
+     * Emits something if user selected favourites from UI
+     */
+    Observable<Boolean> favouritesSelectionStream();
+
+    /**
      * Emits user-initiated reloads, such as SwipeToRefresh
      */
     Observable<Boolean> reloadStream();
@@ -22,5 +27,7 @@ public interface GridPresenter extends Presenter {
      * Emits movie selections
      */
     Observable<Movie> movieSelectionStream();
+
+    void displayDetailActivity();
 
 }

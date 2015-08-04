@@ -6,8 +6,10 @@ import com.dsvoronin.udacitymovies.core.PerActivity;
 import dagger.Component;
 
 @PerActivity
-@Component(dependencies = {AppComponent.class})
+@Component(dependencies = {AppComponent.class}, modules = {GridModule.class})
 public interface GridComponent extends AppComponent {
+
+    void inject(GridActivity activity);
 
     void inject(GridFragment fragment);
 

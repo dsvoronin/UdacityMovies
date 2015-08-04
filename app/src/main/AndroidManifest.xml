@@ -27,11 +27,17 @@
         <activity
             android:name=".detail.DetailsActivity"
             android:label="@string/title_movie_detail"
+            android:launchMode="singleTop"
             android:parentActivityName=".grid.GridActivity">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".grid.GridActivity"/>
         </activity>
+
+        <provider
+            android:name=".data.persist.MoviesContentProvider"
+            android:authorities="com.dsvoronin.udacitymovies.movies_provider"
+            android:exported="false"/>
 
     </application>
 

@@ -12,17 +12,14 @@ import timber.log.Timber;
 public class MoviesApp extends Application {
 
     private RefWatcher refWatcher;
-
-    public static RefWatcher getRefWatcher(Context context) {
-        MoviesApp application = (MoviesApp) context.getApplicationContext();
-        return application.refWatcher;
-    }
+    private AppComponent component;
 
     @Override
     public void onCreate() {
         super.onCreate();
         refWatcher = LeakCanary.install(this);
         Timber.plant(BuildConfig.DEBUG ? new Timber.DebugTree() : new CrashReportingtree());
+        component = buildComponent();
     }
 
     public static MoviesApp get(Context context) {
@@ -30,8 +27,21 @@ public class MoviesApp extends Application {
     }
 
     public AppComponent component() {
+        if (component == null) {
+            synchronized (MoviesApp.class) {
+                if (component == null) {
+                    component = buildComponent();
+                }
+            }
+        }
+
+        //noinspection ConstantConditions
+        return component;
+    }
+
+    private AppComponent buildComponent() {
         return DaggerAppComponent.builder()
-                .appModule(new AppModule(this))
+                .appModule(new AppModule(this, refWatcher))
                 .uIModule(new UIModule())
                 .dataModule(new DataModule())
                 .build();
