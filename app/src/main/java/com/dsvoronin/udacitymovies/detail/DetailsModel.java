@@ -170,7 +170,8 @@ public class DetailsModel implements Model<DetailsPresenter> {
                     public Pair<Movie, Boolean> call(MenuItem menuItem, Pair<Movie, Boolean> movie) {
                         return new Pair<>(movie.first, !movie.second);
                     }
-                });
+                })
+                .onBackpressureBuffer(1);
 
         subscription.add(toggleFavourite.subscribe(new Action1<Pair<Movie, Boolean>>() {
             @Override
