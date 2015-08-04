@@ -15,10 +15,11 @@ import com.dsvoronin.udacitymovies.data.dto.TMDBMovie;
 import com.dsvoronin.udacitymovies.data.entities.Movie;
 import com.dsvoronin.udacitymovies.data.entities.Section;
 import com.dsvoronin.udacitymovies.data.entities.SortBy;
+import com.dsvoronin.udacitymovies.data.persist.MoviesContentProvider;
 import com.dsvoronin.udacitymovies.data.transform.MovieTransformation;
 import com.dsvoronin.udacitymovies.rx.FlatIterable;
-import com.pushtorefresh.storio.sqlite.StorIOSQLite;
-import com.pushtorefresh.storio.sqlite.queries.Query;
+import com.pushtorefresh.storio.contentresolver.StorIOContentResolver;
+import com.pushtorefresh.storio.contentresolver.queries.Query;
 
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -47,19 +48,22 @@ public class GridModel implements Model<GridPresenter> {
 
     private final MovieTransformation movieTransformation;
 
-    private GridPresenter presenter;
-    private final StorIOSQLite storIOSQLite;
+    private final StorIOContentResolver contentResolver;
 
     private final Observable<Movie> movieSelection;
+
     private final DeviceClass deviceClass;
 
     private final FlatIterable<TMDBMovie> flatIterable = new FlatIterable<>();
+
     private final CompositeSubscription subscription = new CompositeSubscription();
 
+    private GridPresenter presenter;
+
     @Inject
-    public GridModel(MovieDBService service, Locale locale, @ImageEndpoint String imageEndpoint, @ImageQualifier String imageQualifier, StorIOSQLite storIOSQLite, Observable<Movie> movieSelection, DeviceClass deviceClass) {
+    public GridModel(MovieDBService service, Locale locale, @ImageEndpoint String imageEndpoint, @ImageQualifier String imageQualifier, StorIOContentResolver contentResolver, Observable<Movie> movieSelection, DeviceClass deviceClass) {
         this.service = service;
-        this.storIOSQLite = storIOSQLite;
+        this.contentResolver = contentResolver;
         this.movieSelection = movieSelection;
         this.deviceClass = deviceClass;
         this.movieTransformation = new MovieTransformation(locale, imageEndpoint, imageQualifier);
@@ -154,11 +158,11 @@ public class GridModel implements Model<GridPresenter> {
     }
 
     private Observable<List<Movie>> diskFavouritesSource() {
-        return storIOSQLite.get()
+        return contentResolver.get()
                 .listOfObjects(Movie.class)
                 .withQuery(
                         Query.builder()
-                                .table("movies")
+                                .uri(MoviesContentProvider.CONTENT_URI)
                                 .build())
                 .prepare()
                 .createObservable()

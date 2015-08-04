@@ -11,7 +11,7 @@ import com.dsvoronin.udacitymovies.data.api.MovieDBService;
 import com.dsvoronin.udacitymovies.data.entities.Movie;
 import com.dsvoronin.udacitymovies.data.persist.MoviesContentProvider;
 import com.dsvoronin.udacitymovies.rx.RxFragment;
-import com.pushtorefresh.storio.sqlite.StorIOSQLite;
+import com.pushtorefresh.storio.contentresolver.StorIOContentResolver;
 import com.squareup.leakcanary.RefWatcher;
 
 import java.util.Locale;
@@ -38,7 +38,7 @@ public interface AppComponent {
 
     Observer<Movie> movieSelector();
 
-    StorIOSQLite storIOSQLite();
+    StorIOContentResolver storIOContentResolver();
 
     SQLiteOpenHelper sqliteOpenHelper();
 

@@ -11,9 +11,10 @@ import com.dsvoronin.udacitymovies.data.dto.TrailersResponse;
 import com.dsvoronin.udacitymovies.data.entities.Movie;
 import com.dsvoronin.udacitymovies.data.entities.Review;
 import com.dsvoronin.udacitymovies.data.entities.Trailer;
+import com.dsvoronin.udacitymovies.data.persist.MoviesContentProvider;
 import com.dsvoronin.udacitymovies.rx.FlatIterable;
-import com.pushtorefresh.storio.sqlite.StorIOSQLite;
-import com.pushtorefresh.storio.sqlite.queries.Query;
+import com.pushtorefresh.storio.contentresolver.StorIOContentResolver;
+import com.pushtorefresh.storio.contentresolver.queries.Query;
 
 import java.util.List;
 
@@ -34,7 +35,7 @@ public class DetailsModel implements Model<DetailsPresenter> {
 
     private final MovieDBService service;
     private final Observable<Movie> moviesSelection;
-    private final StorIOSQLite storIOSQLite;
+    private final StorIOContentResolver contentResolver;
     private final BehaviorSubject<Boolean> favouriteState = BehaviorSubject.create(false);
     private final CompositeSubscription subscription = new CompositeSubscription();
 
@@ -59,16 +60,16 @@ public class DetailsModel implements Model<DetailsPresenter> {
     private final Observable<List<Movie>> favouritesDatabase;
 
     @Inject
-    public DetailsModel(MovieDBService service, Observable<Movie> moviesSelection, StorIOSQLite storIOSQLite) {
+    public DetailsModel(MovieDBService service, Observable<Movie> moviesSelection, StorIOContentResolver contentResolver) {
         this.service = service;
         this.moviesSelection = moviesSelection;
-        this.storIOSQLite = storIOSQLite;
+        this.contentResolver = contentResolver;
 
-        favouritesDatabase = storIOSQLite.get()
+        favouritesDatabase = contentResolver.get()
                 .listOfObjects(Movie.class)
                 .withQuery(
                         Query.builder()
-                                .table("movies")
+                                .uri(MoviesContentProvider.CONTENT_URI)
                                 .build())
                 .prepare()
                 .createObservable()
@@ -174,12 +175,12 @@ public class DetailsModel implements Model<DetailsPresenter> {
             @Override
             public void call(Pair<Movie, Boolean> movie) {
                 if (movie.second) {
-                    storIOSQLite.put()
+                    contentResolver.put()
                             .object(movie.first)
                             .prepare()
                             .executeAsBlocking();
                 } else {
-                    storIOSQLite.delete()
+                    contentResolver.delete()
                             .object(movie.first)
                             .prepare()
                             .executeAsBlocking();

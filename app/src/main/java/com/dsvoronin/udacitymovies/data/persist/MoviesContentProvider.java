@@ -117,6 +117,7 @@ public class MoviesContentProvider extends ContentProvider {
         return true;
     }
 
+    @NonNull
     @Override
     public Cursor query(@NonNull Uri uri, String[] projection, String selection, String[] selectionArgs, String sortOrder) {
         switch (URI_MATCHER.match(uri)) {
@@ -140,12 +141,12 @@ public class MoviesContentProvider extends ContentProvider {
 
     @NotNull
     @Override
-    public String getType(Uri uri) {
+    public String getType(@NonNull Uri uri) {
         return null;
     }
 
     @Override
-    public Uri insert(Uri uri, ContentValues values) {
+    public Uri insert(@NonNull Uri uri, ContentValues values) {
         final long insertedId;
 
         switch (URI_MATCHER.match(uri)) {

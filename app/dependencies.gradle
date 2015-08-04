@@ -24,8 +24,7 @@ ext {
     ]
 
     annotationProcessing = [
-            dagger                 : "com.google.dagger:dagger-compiler:$daggerVersion",
-            storioSQLiteAnnotations: "com.pushtorefresh.storio:sqlite-annotations-processor:$storioVersion"
+            dagger: "com.google.dagger:dagger-compiler:$daggerVersion",
     ]
 
     rx = [
@@ -40,9 +39,7 @@ ext {
     ]
 
     persist = [
-            storioSQLite           : "com.pushtorefresh.storio:sqlite:$storioVersion",
-            storioSQLiteAnnotations: "com.pushtorefresh.storio:sqlite-annotations:$storioVersion",
-            storioContentResolver  : "com.pushtorefresh.storio:content-resolver:$storioVersion"
+            storioContentResolver: "com.pushtorefresh.storio:content-resolver:$storioVersion"
     ]
 
     image = [
