@@ -5,7 +5,7 @@ import android.view.MenuItem;
 
 import com.dsvoronin.udacitymovies.core.Model;
 import com.dsvoronin.udacitymovies.core.PerActivity;
-import com.dsvoronin.udacitymovies.data.MovieDBService;
+import com.dsvoronin.udacitymovies.data.api.MovieDBService;
 import com.dsvoronin.udacitymovies.data.dto.ReviewsResponse;
 import com.dsvoronin.udacitymovies.data.dto.TrailersResponse;
 import com.dsvoronin.udacitymovies.data.entities.Movie;

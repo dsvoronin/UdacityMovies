@@ -6,11 +6,13 @@ import com.dsvoronin.udacitymovies.core.DeviceClass;
 import com.dsvoronin.udacitymovies.core.ImageEndpoint;
 import com.dsvoronin.udacitymovies.core.ImageQualifier;
 import com.dsvoronin.udacitymovies.data.DataModule;
-import com.dsvoronin.udacitymovies.data.MovieDBService;
+import com.dsvoronin.udacitymovies.data.api.MovieDBService;
 import com.dsvoronin.udacitymovies.data.entities.Movie;
 import com.dsvoronin.udacitymovies.rx.RxFragment;
 import com.pushtorefresh.storio.sqlite.StorIOSQLite;
 import com.squareup.leakcanary.RefWatcher;
+
+import java.util.Locale;
 
 import javax.inject.Singleton;
 
@@ -41,6 +43,8 @@ public interface AppComponent {
 
     @ImageEndpoint
     String imageEndpoint();
+
+    Locale locale();
 
     void inject(RxFragment fragment);
 

@@ -124,7 +124,7 @@ public class DetailsFragment extends RxFragment implements DetailsPresenter, Act
         binding.setMovie(movie);
 
         Glide.with(this)
-                .load(movie.posterPath)
+                .load(movie.posterPath.toString())
                 .into(binding.detailsPoster);
     }
 

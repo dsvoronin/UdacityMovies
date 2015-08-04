@@ -7,16 +7,17 @@ import com.dsvoronin.udacitymovies.core.Model;
 import com.dsvoronin.udacitymovies.core.PerActivity;
 import com.dsvoronin.udacitymovies.data.DataSource;
 import com.dsvoronin.udacitymovies.data.DataSourceLogger;
-import com.dsvoronin.udacitymovies.data.MovieDBService;
+import com.dsvoronin.udacitymovies.data.api.MovieDBService;
 import com.dsvoronin.udacitymovies.data.dto.DiscoverMoviesResponse;
+import com.dsvoronin.udacitymovies.data.dto.TMDBMovie;
 import com.dsvoronin.udacitymovies.data.entities.Movie;
 import com.dsvoronin.udacitymovies.data.entities.SortBy;
+import com.dsvoronin.udacitymovies.data.transform.MovieTransformation;
 import com.dsvoronin.udacitymovies.rx.FlatIterable;
 
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
@@ -34,30 +35,27 @@ import timber.log.Timber;
 @PerActivity
 public class GridModel implements Model<GridPresenter> {
 
-    private final SimpleDateFormat yearFormat = new SimpleDateFormat("yyyy");
-    private final SimpleDateFormat tmdbFormat = new SimpleDateFormat("yyyy-MM-dd");
 
     private final MovieDBService service;
 
     private final Map<SortBy, List<Movie>> inMemoryCache = new LinkedHashMap<>();
 
+    private final MovieTransformation movieTransformation;
+
     private GridPresenter presenter;
 
-    private final String imageEndpoint;
-    private final String imageQualifier;
     private final Observable<Movie> movieSelection;
     private final DeviceClass deviceClass;
 
-    private final FlatIterable<Movie> flatIterable = new FlatIterable<>();
+    private final FlatIterable<TMDBMovie> flatIterable = new FlatIterable<>();
     private final CompositeSubscription subscription = new CompositeSubscription();
 
     @Inject
-    public GridModel(MovieDBService service, @ImageEndpoint String imageEndpoint, @ImageQualifier String imageQualifier, Observable<Movie> movieSelection, DeviceClass deviceClass) {
+    public GridModel(MovieDBService service, Locale locale, @ImageEndpoint String imageEndpoint, @ImageQualifier String imageQualifier, Observable<Movie> movieSelection, DeviceClass deviceClass) {
         this.service = service;
-        this.imageEndpoint = imageEndpoint;
-        this.imageQualifier = imageQualifier;
         this.movieSelection = movieSelection;
         this.deviceClass = deviceClass;
+        this.movieTransformation = new MovieTransformation(locale, imageEndpoint, imageQualifier);
     }
 
     public void attachPresenter(final GridPresenter presenter) {
@@ -108,29 +106,14 @@ public class GridModel implements Model<GridPresenter> {
 
     private Observable<List<Movie>> networkSource(final SortBy sortBy) {
         return service.getMovies(sortBy)
-                .map(new Func1<DiscoverMoviesResponse, List<Movie>>() {
+                .map(new Func1<DiscoverMoviesResponse, List<TMDBMovie>>() {
                     @Override
-                    public List<Movie> call(DiscoverMoviesResponse discoverMoviesResponse) {
+                    public List<TMDBMovie> call(DiscoverMoviesResponse discoverMoviesResponse) {
                         return discoverMoviesResponse.results;
                     }
                 })
                 .flatMap(flatIterable)
-                .map(new Func1<Movie, Movie>() {
-                    @Override
-                    public Movie call(Movie movie) {
-                        try {
-                            return new Movie(
-                                    movie.id,
-                                    movie.title,
-                                    movie.overview,
-                                    imageEndpoint + imageQualifier + movie.posterPath,
-                                    yearFormat.format(tmdbFormat.parse(movie.releaseDate)),
-                                    movie.voteAverage);
-                        } catch (ParseException e) {
-                            throw new RuntimeException(e);
-                        }
-                    }
-                })
+                .map(movieTransformation)
                 .toList()
                 .subscribeOn(Schedulers.io())
                 .doOnNext(new Action1<List<Movie>>() {

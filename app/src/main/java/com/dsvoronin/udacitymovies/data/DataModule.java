@@ -1,6 +1,8 @@
 package com.dsvoronin.udacitymovies.data;
 
+import com.dsvoronin.udacitymovies.data.api.ApiModule;
 import com.dsvoronin.udacitymovies.data.entities.Movie;
+import com.dsvoronin.udacitymovies.data.persist.PersistModule;
 
 import javax.inject.Singleton;
 

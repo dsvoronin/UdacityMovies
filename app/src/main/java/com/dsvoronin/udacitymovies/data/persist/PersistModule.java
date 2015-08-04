@@ -1,12 +1,9 @@
-package com.dsvoronin.udacitymovies.data;
+package com.dsvoronin.udacitymovies.data.persist;
 
 import android.app.Application;
 import android.database.sqlite.SQLiteOpenHelper;
 
 import com.dsvoronin.udacitymovies.data.entities.Movie;
-import com.dsvoronin.udacitymovies.data.entities.MovieStorIOSQLiteDeleteResolver;
-import com.dsvoronin.udacitymovies.data.entities.MovieStorIOSQLiteGetResolver;
-import com.dsvoronin.udacitymovies.data.entities.MovieStorIOSQLitePutResolver;
 import com.pushtorefresh.storio.sqlite.SQLiteTypeMapping;
 import com.pushtorefresh.storio.sqlite.StorIOSQLite;
 import com.pushtorefresh.storio.sqlite.impl.DefaultStorIOSQLite;

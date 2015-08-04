@@ -1,4 +1,4 @@
-package com.dsvoronin.udacitymovies.data;
+package com.dsvoronin.udacitymovies.data.api;
 
 import com.dsvoronin.udacitymovies.data.dto.DiscoverMoviesResponse;
 import com.dsvoronin.udacitymovies.data.dto.ReviewsResponse;

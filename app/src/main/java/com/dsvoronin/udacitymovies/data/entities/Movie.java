@@ -4,11 +4,8 @@ import android.os.Parcel;
 import android.os.Parcelable;
 import android.support.annotation.NonNull;
 
-import com.google.gson.annotations.SerializedName;
-import com.pushtorefresh.storio.sqlite.annotations.StorIOSQLiteColumn;
-import com.pushtorefresh.storio.sqlite.annotations.StorIOSQLiteType;
+import com.squareup.okhttp.HttpUrl;
 
-@StorIOSQLiteType(table = "movies")
 public class Movie implements Parcelable {
 
     public static final Creator<Movie> CREATOR = new Creator<Movie>() {
@@ -24,31 +21,22 @@ public class Movie implements Parcelable {
         }
     };
 
-    @StorIOSQLiteColumn(name = "_id", key = true)
     public long id;
 
-    @StorIOSQLiteColumn(name = "title")
     public String title;
 
-    @StorIOSQLiteColumn(name = "overview")
     public String overview;
 
-    @StorIOSQLiteColumn(name = "poster_path")
-    @SerializedName("poster_path")
-    public String posterPath;
+    public HttpUrl posterPath;
 
-    @StorIOSQLiteColumn(name = "release_date")
-    @SerializedName("release_date")
     public String releaseDate;
 
-    @StorIOSQLiteColumn(name = "vote_average")
-    @SerializedName("vote_average")
     public String voteAverage;
 
     public Movie() {
     }
 
-    public Movie(long id, String title, String overview, String posterPath, String releaseDate, String voteAverage) {
+    public Movie(long id, String title, String overview, HttpUrl posterPath, String releaseDate, String voteAverage) {
         this.id = id;
         this.title = title;
         this.overview = overview;
@@ -61,7 +49,7 @@ public class Movie implements Parcelable {
         id = in.readLong();
         title = in.readString();
         overview = in.readString();
-        posterPath = in.readString();
+        posterPath = HttpUrl.parse(in.readString());
         releaseDate = in.readString();
         voteAverage = in.readString();
     }
@@ -74,7 +62,6 @@ public class Movie implements Parcelable {
         Movie movie = (Movie) o;
 
         return id == movie.id;
-
     }
 
     @Override
@@ -82,22 +69,12 @@ public class Movie implements Parcelable {
         return (int) (id ^ (id >>> 32));
     }
 
-    /**
-     * another way to get full image path.
-     * not so good as Picasso injection.
-     * this pojo don't want to know about such details
-     */
-    @Deprecated
-    public String getPosterFullUrl(String endpoint, String qualifier) {
-        return endpoint + qualifier + posterPath;
-    }
-
     @Override
     public void writeToParcel(@NonNull Parcel dest, int flags) {
         dest.writeLong(id);
         dest.writeString(title);
         dest.writeString(overview);
-        dest.writeString(posterPath);
+        dest.writeString(posterPath.toString());
         dest.writeString(releaseDate);
         dest.writeString(voteAverage);
     }

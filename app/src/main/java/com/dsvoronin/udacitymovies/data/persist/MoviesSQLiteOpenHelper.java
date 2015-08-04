@@ -1,4 +1,4 @@
-package com.dsvoronin.udacitymovies.data;
+package com.dsvoronin.udacitymovies.data.persist;
 
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
