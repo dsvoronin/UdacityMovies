@@ -15,10 +15,13 @@ import com.bumptech.glide.Glide;
 import com.dsvoronin.udacitymovies.MoviesApp;
 import com.dsvoronin.udacitymovies.R;
 import com.dsvoronin.udacitymovies.data.entities.Movie;
+import com.dsvoronin.udacitymovies.data.entities.Trailer;
 import com.dsvoronin.udacitymovies.databinding.DetailsBinding;
 import com.dsvoronin.udacitymovies.grid.GridActivity;
 import com.dsvoronin.udacitymovies.rx.RxActivity;
 import com.dsvoronin.udacitymovies.rx.RxFragment;
+
+import java.util.List;
 
 import javax.inject.Inject;
 import javax.inject.Provider;
@@ -48,6 +51,7 @@ public class DetailsFragment extends RxFragment implements DetailsPresenter, Act
     private DetailsBinding binding;
 
     private BehaviorSubject<MenuItem> favouriteItem = BehaviorSubject.create();
+    private BehaviorSubject<MenuItem> shareItem = BehaviorSubject.create();
 
     @Inject Provider<DetailsModel> modelProvider;
     @Inject Provider<DetailsModelFragment> modelFragmentProvider;
@@ -72,6 +76,7 @@ public class DetailsFragment extends RxFragment implements DetailsPresenter, Act
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         inflater.inflate(R.menu.details, menu);
         favouriteItem.onNext(menu.findItem(R.id.favourite));
+        shareItem.onNext(menu.findItem(R.id.share));
     }
 
     @Override
@@ -103,6 +108,29 @@ public class DetailsFragment extends RxFragment implements DetailsPresenter, Act
                     }
                 })
         );
+
+        Observable<Boolean> hasAnyTrailersStream = model.trailersStream()
+                .map(new Func1<List<Trailer>, Boolean>() {
+                    @Override
+                    public Boolean call(List<Trailer> trailers) {
+                        return !trailers.isEmpty();
+                    }
+                })
+                .observeOn(AndroidSchedulers.mainThread());
+
+        subscription.add(combineLatest(hasAnyTrailersStream, shareItem, new Func2<Boolean, MenuItem, Pair<Boolean, MenuItem>>() {
+            @Override
+            public Pair<Boolean, MenuItem> call(Boolean aBoolean, MenuItem menuItem) {
+                return new Pair<>(aBoolean, menuItem);
+            }
+        })
+                .subscribe(new Action1<Pair<Boolean, MenuItem>>() {
+                    @Override
+                    public void call(Pair<Boolean, MenuItem> pair) {
+                        pair.second.setVisible(pair.first);
+                        getActivity().supportInvalidateOptionsMenu();
+                    }
+                }));
 
         return binding.getRoot();
     }
@@ -144,5 +172,21 @@ public class DetailsFragment extends RxFragment implements DetailsPresenter, Act
                         return menuItem.getItemId() == R.id.favourite;
                     }
                 });
+    }
+
+    @Override
+    public Observable<MenuItem> shareClicks() {
+        return ((RxActivity) getActivity()).onOptionsItemSelectedStream()
+                .filter(new Func1<MenuItem, Boolean>() {
+                    @Override
+                    public Boolean call(MenuItem menuItem) {
+                        return menuItem.getItemId() == R.id.share;
+                    }
+                });
+    }
+
+    @Override
+    public Context context() {
+        return getActivity();
     }
 }

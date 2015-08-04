@@ -1,5 +1,6 @@
 package com.dsvoronin.udacitymovies.detail;
 
+import android.content.Intent;
 import android.util.Pair;
 import android.view.MenuItem;
 
@@ -135,7 +136,7 @@ public class DetailsModel implements Model<DetailsPresenter> {
     }
 
     @Override
-    public void attachPresenter(DetailsPresenter presenter) {
+    public void attachPresenter(final DetailsPresenter presenter) {
 
         Observable<Pair<Movie, Boolean>> isMovieFavourite = moviesSelection.flatMap(new Func1<Movie, Observable<Pair<Movie, Boolean>>>() {
             @Override
@@ -186,6 +187,38 @@ public class DetailsModel implements Model<DetailsPresenter> {
                             .executeAsBlocking();
                 }
                 favouriteState.onNext(movie.second);
+            }
+        }));
+
+        Observable<String> shareStream = presenter.shareClicks()
+                .withLatestFrom(trailersStream(), new Func2<MenuItem, List<Trailer>, List<Trailer>>() {
+                    @Override
+                    public List<Trailer> call(MenuItem menuItem, List<Trailer> trailers) {
+                        return trailers;
+                    }
+                })
+                .flatMap(new Func1<List<Trailer>, Observable<String>>() {
+                    @Override
+                    public Observable<String> call(List<Trailer> trailers) {
+                        return Observable.from(trailers)
+                                .first()
+                                .map(new Func1<Trailer, String>() {
+                                    @Override
+                                    public String call(Trailer trailer) {
+                                        return "http://www.youtube.com/watch?v=" + trailer.key;
+                                    }
+                                });
+                    }
+                });
+
+        subscription.add(shareStream.subscribe(new Action1<String>() {
+            @Override
+            public void call(String trailer) {
+                Intent i = new Intent(Intent.ACTION_SEND);
+                i.setType("text/plain");
+                i.putExtra(Intent.EXTRA_SUBJECT, "Share Trailer!");
+                i.putExtra(Intent.EXTRA_TEXT, trailer);
+                presenter.context().startActivity(Intent.createChooser(i, "Share URL"));
             }
         }));
     }

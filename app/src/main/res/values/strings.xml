@@ -16,4 +16,5 @@
     <string name="reviews_title">Reviews</string>
     <string name="reviews_load_fail">Can\'t load reviews</string>
     <string name="favourite">Favourite</string>
+    <string name="share">Share</string>
 </resources>
