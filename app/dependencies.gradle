@@ -41,7 +41,8 @@ ext {
 
     persist = [
             storioSQLite           : "com.pushtorefresh.storio:sqlite:$storioVersion",
-            storioSQLiteAnnotations: "com.pushtorefresh.storio:sqlite-annotations:$storioVersion"
+            storioSQLiteAnnotations: "com.pushtorefresh.storio:sqlite-annotations:$storioVersion",
+            storioContentResolver  : "com.pushtorefresh.storio:content-resolver:$storioVersion"
     ]
 
     image = [

@@ -14,8 +14,8 @@ public class MovieStorIOSQLiteDeleteResolver extends DefaultDeleteResolver<Movie
     @NonNull
     protected DeleteQuery mapToDeleteQuery(@NonNull Movie object) {
         return DeleteQuery.builder()
-                .table("movies")
-                .where("_id = ?")
+                .table(MoviesTable.TABLE_NAME)
+                .where(MoviesTable.COL_ID + " = ?")
                 .whereArgs(object.id)
                 .build();
     }

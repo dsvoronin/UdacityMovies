@@ -16,7 +16,7 @@ public class MovieStorIOSQLitePutResolver extends DefaultPutResolver<Movie> {
     @NonNull
     protected InsertQuery mapToInsertQuery(@NonNull Movie object) {
         return InsertQuery.builder()
-                .table("movies")
+                .table(MoviesTable.TABLE_NAME)
                 .build();
     }
 
@@ -27,8 +27,8 @@ public class MovieStorIOSQLitePutResolver extends DefaultPutResolver<Movie> {
     @NonNull
     protected UpdateQuery mapToUpdateQuery(@NonNull Movie object) {
         return UpdateQuery.builder()
-                .table("movies")
-                .where("_id = ?")
+                .table(MoviesTable.TABLE_NAME)
+                .where(MoviesTable.COL_ID + " = ?")
                 .whereArgs(object.id)
                 .build();
     }
@@ -41,12 +41,12 @@ public class MovieStorIOSQLitePutResolver extends DefaultPutResolver<Movie> {
     public ContentValues mapToContentValues(@NonNull Movie object) {
         ContentValues contentValues = new ContentValues(6);
 
-        contentValues.put("title", object.title);
-        contentValues.put("vote_average", object.voteAverage);
-        contentValues.put("overview", object.overview);
-        contentValues.put("_id", object.id);
-        contentValues.put("release_date", object.releaseDate);
-        contentValues.put("poster_path", object.posterPath.toString());
+        contentValues.put(MoviesTable.COL_ID, object.id);
+        contentValues.put(MoviesTable.COL_TITLE, object.title);
+        contentValues.put(MoviesTable.COL_OVERVIEW, object.overview);
+        contentValues.put(MoviesTable.COL_POSTER_PATH, object.posterPath.toString());
+        contentValues.put(MoviesTable.COL_RELEASE_DATE, object.releaseDate);
+        contentValues.put(MoviesTable.COL_VOTE_AVERAGE, object.voteAverage);
 
         return contentValues;
     }

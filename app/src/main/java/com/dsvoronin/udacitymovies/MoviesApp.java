@@ -27,6 +27,15 @@ public class MoviesApp extends Application {
     }
 
     public AppComponent component() {
+        if (component == null) {
+            synchronized (MoviesApp.class) {
+                if (component == null) {
+                    component = buildComponent();
+                }
+            }
+        }
+
+        //noinspection ConstantConditions
         return component;
     }
 

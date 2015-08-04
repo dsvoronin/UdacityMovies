@@ -4,6 +4,9 @@ import android.app.Application;
 import android.database.sqlite.SQLiteOpenHelper;
 
 import com.dsvoronin.udacitymovies.data.entities.Movie;
+import com.pushtorefresh.storio.contentresolver.ContentResolverTypeMapping;
+import com.pushtorefresh.storio.contentresolver.StorIOContentResolver;
+import com.pushtorefresh.storio.contentresolver.impl.DefaultStorIOContentResolver;
 import com.pushtorefresh.storio.sqlite.SQLiteTypeMapping;
 import com.pushtorefresh.storio.sqlite.StorIOSQLite;
 import com.pushtorefresh.storio.sqlite.impl.DefaultStorIOSQLite;
@@ -35,4 +38,19 @@ public class PersistModule {
                                 .build())
                 .build();
     }
+
+    @Provides
+    @Singleton
+    StorIOContentResolver provideStorIOContentResolver(Application application) {
+        return DefaultStorIOContentResolver.builder()
+                .contentResolver(application.getContentResolver())
+                .addTypeMapping(Movie.class,
+                        ContentResolverTypeMapping.<Movie>builder()
+                                .putResolver(MoviesContentProvider.PUT_RESOLVER)
+                                .getResolver(MoviesContentProvider.GET_RESOLVER)
+                                .deleteResolver(MoviesContentProvider.DELETE_RESOLVER)
+                                .build())
+                .build();
+    }
+
 }

@@ -16,12 +16,12 @@ public class MovieStorIOSQLiteGetResolver extends DefaultGetResolver<Movie> {
     public Movie mapFromCursor(@NonNull Cursor cursor) {
         Movie object = new Movie();
 
-        object.title = cursor.getString(cursor.getColumnIndex("title"));
-        object.voteAverage = cursor.getString(cursor.getColumnIndex("vote_average"));
-        object.overview = cursor.getString(cursor.getColumnIndex("overview"));
-        object.id = cursor.getLong(cursor.getColumnIndex("_id"));
-        object.releaseDate = cursor.getString(cursor.getColumnIndex("release_date"));
-        object.posterPath = HttpUrl.parse(cursor.getString(cursor.getColumnIndex("poster_path")));
+        object.id = cursor.getLong(cursor.getColumnIndex(MoviesTable.COL_ID));
+        object.title = cursor.getString(cursor.getColumnIndex(MoviesTable.COL_TITLE));
+        object.overview = cursor.getString(cursor.getColumnIndex(MoviesTable.COL_OVERVIEW));
+        object.posterPath = HttpUrl.parse(cursor.getString(cursor.getColumnIndex(MoviesTable.COL_POSTER_PATH)));
+        object.releaseDate = cursor.getString(cursor.getColumnIndex(MoviesTable.COL_RELEASE_DATE));
+        object.voteAverage = cursor.getString(cursor.getColumnIndex(MoviesTable.COL_VOTE_AVERAGE));
 
         return object;
     }
