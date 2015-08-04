@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+
+        <variable
+            name="review"
+            type="com.dsvoronin.udacitymovies.data.entities.Review"/>
+    </data>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="?selectableItemBackground"
+        android:clickable="true"
+        android:orientation="vertical"
+        android:paddingBottom="4dp"
+        android:paddingLeft="@dimen/form_padding"
+        android:paddingRight="@dimen/form_padding"
+        android:paddingTop="4dp">
+
+        <TextView
+            android:id="@+id/review_author"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text='@{review.author}'
+            tools:text="Trailers From Hell"/>
+
+        <TextView
+            android:id="@+id/review_content"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@{review.content}"
+            tools:text="Trailers From Hell"/>
+
+    </LinearLayout>
+
+</layout>

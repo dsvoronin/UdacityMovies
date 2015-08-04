@@ -7,4 +7,14 @@
 
     <string name="sort_by_popularity">Sort by popularity</string>
     <string name="sort_by_rating">Sort by rating</string>
+    <string name="trailers_title">Trailers</string>
+
+    <string name="details_description">Description</string>
+
+    <string name="trailers_load_fail">Can\'t load trailers</string>
+
+    <string name="reviews_title">Reviews</string>
+    <string name="reviews_load_fail">Can\'t load reviews</string>
+    <string name="favourite">Favourite</string>
+    <string name="share">Share</string>
 </resources>

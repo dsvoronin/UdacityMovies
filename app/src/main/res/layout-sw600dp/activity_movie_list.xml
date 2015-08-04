@@ -1,31 +1,26 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:baselineAligned="false"
-    android:divider="?android:attr/dividerHorizontal"
-    android:orientation="horizontal"
-    android:showDividers="middle"
-    tools:context=".MovieListActivity">
-
-    <!--
-    This layout is a two-pane layout for the Movies
-    master/detail flow.
-    
-    -->
+              xmlns:tools="http://schemas.android.com/tools"
+              android:layout_width="match_parent"
+              android:layout_height="match_parent"
+              android:baselineAligned="false"
+              android:divider="?android:attr/dividerHorizontal"
+              android:orientation="horizontal"
+              android:showDividers="middle"
+              tools:context=".MovieListActivity">
 
     <fragment
         android:id="@+id/movie_list"
-        android:name="com.dsvoronin.udacitymovies.grid.MoviesGridFragment"
+        android:name="com.dsvoronin.udacitymovies.grid.GridFragment"
         android:layout_width="0dp"
         android:layout_height="match_parent"
         android:layout_weight="1"
-        tools:layout="@android:layout/list_content" />
+        tools:layout="@android:layout/list_content"/>
 
-    <FrameLayout
+    <fragment
         android:id="@+id/movie_detail_container"
+        android:name="com.dsvoronin.udacitymovies.detail.DetailsFragment"
         android:layout_width="0dp"
         android:layout_height="match_parent"
-        android:layout_weight="1" />
+        android:layout_weight="1"/>
 
 </LinearLayout>
