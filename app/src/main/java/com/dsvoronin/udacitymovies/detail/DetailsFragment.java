@@ -10,6 +10,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.dsvoronin.udacitymovies.MoviesApp;
@@ -27,6 +28,7 @@ import javax.inject.Inject;
 import javax.inject.Provider;
 
 import rx.Observable;
+import rx.Observer;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.functions.Action1;
 import rx.functions.Func1;
@@ -43,18 +45,15 @@ import static rx.Observable.combineLatest;
  * in two-pane mode (on tablets) or a {@link DetailsActivity}
  * on handsets.
  */
-public class DetailsFragment extends RxFragment implements DetailsPresenter, Action1<Movie> {
+public class DetailsFragment extends RxFragment implements DetailsPresenter, Observer<Movie> {
 
     private final CompositeSubscription subscription = new CompositeSubscription();
-
-    private DetailsModel model;
-    private DetailsBinding binding;
-
-    private BehaviorSubject<MenuItem> favouriteItem = BehaviorSubject.create();
-    private BehaviorSubject<MenuItem> shareItem = BehaviorSubject.create();
-
     @Inject Provider<DetailsModel> modelProvider;
     @Inject Provider<DetailsModelFragment> modelFragmentProvider;
+    private DetailsModel model;
+    private DetailsBinding binding;
+    private BehaviorSubject<MenuItem> favouriteItem = BehaviorSubject.create();
+    private BehaviorSubject<MenuItem> shareItem = BehaviorSubject.create();
 
     @Override
     public void onAttach(Activity activity) {
@@ -116,6 +115,12 @@ public class DetailsFragment extends RxFragment implements DetailsPresenter, Act
                         return !trailers.isEmpty();
                     }
                 })
+                .onErrorReturn(new Func1<Throwable, Boolean>() {
+                    @Override
+                    public Boolean call(Throwable throwable) {
+                        return false;
+                    }
+                })
                 .observeOn(AndroidSchedulers.mainThread());
 
         subscription.add(combineLatest(hasAnyTrailersStream, shareItem, new Func2<Boolean, MenuItem, Pair<Boolean, MenuItem>>() {
@@ -145,15 +150,6 @@ public class DetailsFragment extends RxFragment implements DetailsPresenter, Act
     public void onDetach() {
         super.onDetach();
         model.detachPresenter();
-    }
-
-    @Override
-    public void call(Movie movie) {
-        binding.setMovie(movie);
-
-        Glide.with(this)
-                .load(movie.posterPath.toString())
-                .into(binding.detailsPoster);
     }
 
     private DetailsComponent buildComponent(Context context) {
@@ -188,5 +184,24 @@ public class DetailsFragment extends RxFragment implements DetailsPresenter, Act
     @Override
     public Context context() {
         return getActivity();
+    }
+
+    @Override
+    public void onCompleted() {
+    }
+
+    @Override
+    public void onError(Throwable e) {
+        Timber.e(e, "Can't load movie");
+        Toast.makeText(getActivity(), R.string.trailers_load_fail, Toast.LENGTH_SHORT).show();
+    }
+
+    @Override
+    public void onNext(Movie movie) {
+        binding.setMovie(movie);
+
+        Glide.with(this)
+                .load(movie.posterPath.toString())
+                .into(binding.detailsPoster);
     }
 }
