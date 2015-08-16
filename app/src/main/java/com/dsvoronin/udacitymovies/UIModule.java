@@ -12,6 +12,7 @@ import javax.inject.Singleton;
 
 import dagger.Module;
 import dagger.Provides;
+import timber.log.Timber;
 
 @Module
 public class UIModule {
@@ -38,22 +39,9 @@ public class UIModule {
     @Singleton
     DeviceClass provideIsTablet(Configuration configuration) {
         int smallestWidth = configuration.smallestScreenWidthDp;
-        if (smallestWidth > 720) return DeviceClass.TABLET_10;
-        if (smallestWidth > 600) return DeviceClass.TABLET_7;
+        Timber.d("SmallestWidth=" + smallestWidth);
+        if (smallestWidth >= 720) return DeviceClass.TABLET_10;
+        if (smallestWidth >= 600) return DeviceClass.TABLET_7;
         return DeviceClass.PHONE;
     }
-
-//    @Provides
-//    @Singleton
-//    DeviceClass provideIsTablet(DisplayMetrics metrics) {
-//        float scaleFactor = metrics.density;
-//        float widthDp = metrics.widthPixels / scaleFactor;
-//        float heightDp = metrics.heightPixels / scaleFactor;
-//
-//        float smallestWidth = Math.min(widthDp, heightDp);
-//
-//        if (smallestWidth > 720) return DeviceClass.TABLET_10;
-//        if (smallestWidth > 600) return DeviceClass.TABLET_7;
-//        return DeviceClass.PHONE;
-//    }
 }
